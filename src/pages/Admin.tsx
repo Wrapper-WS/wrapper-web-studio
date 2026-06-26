@@ -4,7 +4,7 @@ import { formatPrice } from '../lib/plans'
 import {
   LayoutDashboard, ShoppingBag, Package, BarChart2,
   Tag, Users, LogOut, ChevronDown, ChevronUp,
-  Plus, Trash2, Check, X, RefreshCw
+  Plus, Trash2, Check, RefreshCw
 } from 'lucide-react'
 import type { Order, Upsell, PromoCode } from '../lib/supabase'
 
