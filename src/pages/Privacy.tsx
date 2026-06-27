@@ -126,7 +126,12 @@ export default function Privacy() {
               content: (
                 <>
                   <p style={{ marginBottom: 8 }}>If you have questions or comments about this notice, you may email us at <a href="mailto:sp3techinitiative@gmail.com" style={{ color: 'var(--teal)' }}>sp3techinitiative@gmail.com</a> or contact us by post at:</p>
-                  <p style={{ color: 'var(--text)' }}>Wrapper Web Studio<br />No 1 Ibeh Road, Okota Isolo<br />Isolo, Lagos 100263<br />Nigeria</p>
+                  <p style={{ color: 'var(--text)' }}>
+                    Wrapper Web Studio<br />
+                    1 Sura Agbiaka St<br />
+                    Lagos, Lagos 102214<br />
+                    Nigeria
+                    </p>
                 </>
               ),
             },

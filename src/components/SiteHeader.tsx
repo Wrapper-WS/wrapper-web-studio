@@ -5,7 +5,6 @@ import { Menu, X } from 'lucide-react'
 const navLinks = [
   { to: '/', label: 'Home' },
   { to: '/pricing', label: 'Pricing' },
-  { to: '/how-it-works', label: 'How It Works' },
   { to: '/contact', label: 'Contact' },
 ]
 
@@ -55,7 +54,7 @@ export function SiteHeader() {
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '10px 16px',
-          transition: 'all 0.3s ease',
+          transition: 'box-shadow 0.3s ease',
           boxShadow: scrolled ? '0 8px 32px rgba(0,0,0,0.4)' : 'none',
         }}
       >
@@ -109,14 +108,7 @@ export function SiteHeader() {
         </Link>
 
         {/* Desktop nav */}
-        <nav
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 4,
-          }}
-          className="hidden-mobile"
-        >
+        <nav className="hidden-mobile" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           {navLinks.map((link) => (
             <Link
               key={link.to}
@@ -150,36 +142,27 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        {/* Desktop CTA + Mobile menu button */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Link
-            to="/pricing"
-            className="btn-primary hidden-mobile"
-            style={{ fontSize: 13, padding: '8px 18px' }}
-          >
-            Get Started
-          </Link>
-          <button
-            onClick={() => setOpen((o) => !o)}
-            className="show-mobile"
-            aria-label={open ? 'Close menu' : 'Open menu'}
-            style={{
-              width: 38,
-              height: 38,
-              borderRadius: 999,
-              border: '1px solid var(--border-strong)',
-              background: 'rgba(255,255,255,0.05)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              color: 'var(--text)',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            {open ? <X size={18} /> : <Menu size={18} />}
-          </button>
-        </div>
+        {/* Mobile hamburger */}
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className="show-mobile"
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: 999,
+            border: '1px solid var(--border-strong)',
+            background: 'rgba(255,255,255,0.05)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            color: 'var(--text)',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          {open ? <X size={18} /> : <Menu size={18} />}
+        </button>
       </div>
 
       {/* Mobile dropdown */}
@@ -188,7 +171,7 @@ export function SiteHeader() {
           style={{
             maxWidth: 1100,
             margin: '8px auto 0',
-            background: 'rgba(15,18,28,0.96)',
+            background: 'rgba(15,18,28,0.97)',
             backdropFilter: 'blur(24px)',
             WebkitBackdropFilter: 'blur(24px)',
             border: '1px solid var(--border-strong)',
@@ -197,6 +180,7 @@ export function SiteHeader() {
             display: 'flex',
             flexDirection: 'column',
             gap: 2,
+            animation: 'fadeDown 0.2s ease',
           }}
         >
           {navLinks.map((link) => (
@@ -204,7 +188,7 @@ export function SiteHeader() {
               key={link.to}
               to={link.to}
               style={{
-                padding: '13px 16px',
+                padding: '14px 16px',
                 borderRadius: 12,
                 fontSize: 15,
                 fontWeight: 500,
@@ -218,15 +202,6 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
-          <div style={{ padding: '8px 8px 4px' }}>
-            <Link
-              to="/pricing"
-              className="btn-primary"
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              Get Started
-            </Link>
-          </div>
         </div>
       )}
 
@@ -238,6 +213,10 @@ export function SiteHeader() {
         @media (max-width: 767px) {
           .hidden-mobile { display: none !important; }
           .show-mobile { display: flex !important; }
+        }
+        @keyframes fadeDown {
+          from { opacity: 0; transform: translateY(-8px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </header>
