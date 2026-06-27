@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Send, Check } from 'lucide-react'
 import { getPlan, formatPrice } from '../lib/plans'
 import { supabase } from '../lib/supabase'
@@ -58,7 +58,6 @@ const colorOptions = [
 
 export default function OrderForm() {
   const { planId } = useParams<{ planId: string }>()
-  const navigate = useNavigate()
   const plan = getPlan(planId ?? '')
 
   const [orderState, setOrderState] = useState<OrderState | null>(null)

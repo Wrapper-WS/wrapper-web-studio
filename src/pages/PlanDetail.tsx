@@ -8,24 +8,6 @@ import type { Upsell } from '../lib/supabase'
 // Plans that support promo codes
 const PROMO_ELIGIBLE = ['business', 'pro', 'custom']
 
-// Color swatch map
-const COLOR_SWATCHES: Record<string, string> = {
-  'Black & white': 'linear-gradient(135deg, #000 50%, #fff 50%)',
-  'Blue tones': 'linear-gradient(135deg, #1a3a6b, #87ceeb)',
-  'Green tones': 'linear-gradient(135deg, #1a5c2a, #3cb371)',
-  'Red / pink tones': 'linear-gradient(135deg, #8b0000, #ff69b4)',
-  'Purple / violet': 'linear-gradient(135deg, #4b0082, #da70d6)',
-  'Orange / warm': 'linear-gradient(135deg, #cc4400, #ffd700)',
-  'Custom (describe in notes)': 'linear-gradient(135deg, #444, #888)',
-}
-
-const VARIANT_SWATCHES: Record<string, string> = {
-  'Navy blue': '#001f5b', 'Sky blue': '#87ceeb', 'Royal blue': '#4169e1',
-  'Forest green': '#228b22', 'Mint green': '#98ff98', 'Emerald': '#50c878',
-  'Deep red': '#8b0000', 'Rose gold': '#b76e79', 'Hot pink': '#ff69b4',
-  'Deep purple': '#4b0082', 'Lavender': '#e6e6fa', 'Violet': '#ee82ee',
-  'Burnt orange': '#cc5500', 'Gold': '#ffd700', 'Terracotta': '#c96a30',
-}
 
 function RevealCard({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null)
