@@ -200,17 +200,7 @@ export default function PlanDetail() {
           </div>
         </RevealCard>
 
-        {/* Order button */}
-        <RevealCard delay={100}>
-          <button onClick={handleOrder} className="btn-primary" style={{ width: '100%', justifyContent: 'center', fontSize: 16, padding: '15px', marginBottom: 8, transition: 'transform 0.2s ease, box-shadow 0.2s ease' }}
-            onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(240,240,245,0.15)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none' }}>
-            Place Order →
-          </button>
-          <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 12, marginBottom: 28 }}>
-            Continue to a quick order form for the {plan.name} plan.
-          </p>
-        </RevealCard>
+
 
         {/* What's included */}
         <RevealCard delay={150}>
@@ -253,18 +243,7 @@ export default function PlanDetail() {
           </div>
         </RevealCard>
 
-        {/* Ready to start */}
-        <RevealCard delay={250}>
-          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, padding: '20px', marginBottom: 32 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--muted)', fontFamily: 'Space Grotesk, sans-serif', marginBottom: 5 }}>READY TO START?</p>
-            <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 17, fontWeight: 700, marginBottom: 16 }}>
-              {plan.name} — {formatPrice(appliedPromo ? discountedPrice : plan.price)}
-            </p>
-            <button onClick={handleOrder} className="btn-primary" style={{ width: '100%', justifyContent: 'center', fontSize: 15 }}>
-              Place Order
-            </button>
-          </div>
-        </RevealCard>
+
 
         {/* Upsells */}
         {upsells.length > 0 && (
@@ -302,14 +281,46 @@ export default function PlanDetail() {
                 <div style={{ marginTop: 18, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, padding: '16px 18px' }}>
                   <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>TOTAL</p>
                   <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 26, fontWeight: 700, color: 'var(--teal)' }}>{formatPrice(total)}</p>
-                  <button onClick={handleOrder} className="btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: 14, fontSize: 15 }}>
-                    Place Order →
-                  </button>
                 </div>
               )}
             </div>
           </RevealCard>
         )}
+
+        {/* Single Place Order CTA — always at the very bottom */}
+        <RevealCard delay={100}>
+          <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--muted)', fontFamily: 'Space Grotesk, sans-serif', marginBottom: 3 }}>READY TO START?</p>
+                <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 18, fontWeight: 700 }}>
+                  {plan.name} — {formatPrice(appliedPromo ? discountedPrice : plan.price)}
+                  {selectedAddOns.length > 0 && (
+                    <span style={{ color: 'var(--teal)', fontSize: 14, fontWeight: 600, marginLeft: 8 }}>
+                      + {formatPrice(selectedAddOns.reduce((s, a) => s + a.price, 0))} add-ons
+                    </span>
+                  )}
+                </p>
+              </div>
+              <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 22, fontWeight: 700, color: 'var(--teal)' }}>
+                {formatPrice(total)}
+              </p>
+            </div>
+            <button
+              onClick={handleOrder}
+              className="btn-primary"
+              style={{ width: '100%', justifyContent: 'center', fontSize: 16, padding: '15px', transition: 'transform 0.2s ease, box-shadow 0.2s ease' }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(240,240,245,0.15)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none' }}
+            >
+              Place Order →
+            </button>
+            <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 12, marginTop: 10 }}>
+              Continue to a quick order form for the {plan.name} plan.
+            </p>
+          </div>
+        </RevealCard>
+
       </section>
     </main>
   )
