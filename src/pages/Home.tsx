@@ -36,7 +36,7 @@ function RevealCard({ children, delay = 0, style = {} }: { children: React.React
 
 export default function Home() {
   return (
-    <main style={{ paddingTop: 80 }}>
+    <main style={{ paddingTop: 70 }}>
       {/* Hero */}
       <section
         style={{
@@ -45,7 +45,7 @@ export default function Home() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '40px 16px 48px',
+          padding: '16px 16px 40px',
           textAlign: 'center',
           position: 'relative',
           overflow: 'hidden',

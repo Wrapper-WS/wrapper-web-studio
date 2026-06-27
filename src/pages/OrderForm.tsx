@@ -37,21 +37,39 @@ const websiteStyles = [
 ]
 
 const colorOptions = [
-  { label: 'Black & white', swatch: 'linear-gradient(135deg, #000 50%, #fff 50%)', variants: [] },
+  { label: 'Black & white', swatch: 'linear-gradient(135deg, #000 50%, #fff 50%)', variants: [
+    { label: 'Pure black', color: '#000000' }, { label: 'Charcoal', color: '#36454f' }, { label: 'Slate grey', color: '#708090' },
+    { label: 'Pure white', color: '#ffffff' }, { label: 'Off white', color: '#f5f5f0' }, { label: 'Cream', color: '#fffdd0' },
+  ]},
   { label: 'Blue tones', swatch: 'linear-gradient(135deg, #1a3a6b, #87ceeb)', variants: [
-    { label: 'Navy blue', color: '#001f5b' }, { label: 'Sky blue', color: '#87ceeb' }, { label: 'Royal blue', color: '#4169e1' },
+    { label: 'Navy blue', color: '#001f5b' }, { label: 'Midnight blue', color: '#191970' }, { label: 'Royal blue', color: '#4169e1' },
+    { label: 'Cobalt', color: '#0047ab' }, { label: 'Sky blue', color: '#87ceeb' }, { label: 'Baby blue', color: '#89cff0' },
+    { label: 'Teal blue', color: '#367588' }, { label: 'Steel blue', color: '#4682b4' }, { label: 'Electric blue', color: '#0077ff' },
   ]},
   { label: 'Green tones', swatch: 'linear-gradient(135deg, #1a5c2a, #3cb371)', variants: [
-    { label: 'Forest green', color: '#228b22' }, { label: 'Mint green', color: '#98ff98' }, { label: 'Emerald', color: '#50c878' },
+    { label: 'Forest green', color: '#228b22' }, { label: 'Emerald', color: '#50c878' }, { label: 'Mint green', color: '#98ff98' },
+    { label: 'Sage', color: '#bcbf8d' }, { label: 'Olive', color: '#808000' }, { label: 'Lime', color: '#32cd32' },
+    { label: 'Dark teal', color: '#008080' }, { label: 'Jade', color: '#00a86b' }, { label: 'Hunter green', color: '#355e3b' },
   ]},
   { label: 'Red / pink tones', swatch: 'linear-gradient(135deg, #8b0000, #ff69b4)', variants: [
-    { label: 'Deep red', color: '#8b0000' }, { label: 'Rose gold', color: '#b76e79' }, { label: 'Hot pink', color: '#ff69b4' },
+    { label: 'Deep red', color: '#8b0000' }, { label: 'Crimson', color: '#dc143c' }, { label: 'Scarlet', color: '#ff2400' },
+    { label: 'Rose gold', color: '#b76e79' }, { label: 'Blush pink', color: '#ffb6c1' }, { label: 'Hot pink', color: '#ff69b4' },
+    { label: 'Magenta', color: '#ff00ff' }, { label: 'Coral', color: '#ff6b6b' }, { label: 'Dusty rose', color: '#dcae96' },
   ]},
   { label: 'Purple / violet', swatch: 'linear-gradient(135deg, #4b0082, #da70d6)', variants: [
-    { label: 'Deep purple', color: '#4b0082' }, { label: 'Lavender', color: '#e6e6fa' }, { label: 'Violet', color: '#ee82ee' },
+    { label: 'Deep purple', color: '#4b0082' }, { label: 'Royal purple', color: '#7851a9' }, { label: 'Violet', color: '#ee82ee' },
+    { label: 'Lavender', color: '#e6e6fa' }, { label: 'Plum', color: '#8e4585' }, { label: 'Mauve', color: '#e0b0ff' },
+    { label: 'Lilac', color: '#c8a2c8' }, { label: 'Amethyst', color: '#9966cc' }, { label: 'Indigo', color: '#4b0082' },
   ]},
   { label: 'Orange / warm', swatch: 'linear-gradient(135deg, #cc4400, #ffd700)', variants: [
-    { label: 'Burnt orange', color: '#cc5500' }, { label: 'Gold', color: '#ffd700' }, { label: 'Terracotta', color: '#c96a30' },
+    { label: 'Burnt orange', color: '#cc5500' }, { label: 'Tangerine', color: '#f28500' }, { label: 'Amber', color: '#ffbf00' },
+    { label: 'Gold', color: '#ffd700' }, { label: 'Terracotta', color: '#c96a30' }, { label: 'Rust', color: '#b7410e' },
+    { label: 'Peach', color: '#ffcba4' }, { label: 'Honey', color: '#e8a838' }, { label: 'Saffron', color: '#f4c430' },
+  ]},
+  { label: 'Brown / earth', swatch: 'linear-gradient(135deg, #3b1f0a, #c4a265)', variants: [
+    { label: 'Dark brown', color: '#3b1f0a' }, { label: 'Chocolate', color: '#7b3f00' }, { label: 'Mocha', color: '#967259' },
+    { label: 'Caramel', color: '#c68642' }, { label: 'Sand', color: '#c4a265' }, { label: 'Tan', color: '#d2b48c' },
+    { label: 'Beige', color: '#f5f0dc' }, { label: 'Walnut', color: '#5c3317' }, { label: 'Khaki', color: '#c3b091' },
   ]},
   { label: 'Custom (describe in notes)', swatch: 'linear-gradient(135deg, #333, #888)', variants: [] },
 ]

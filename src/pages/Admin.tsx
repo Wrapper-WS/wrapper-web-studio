@@ -17,8 +17,6 @@ function AdminLogin({ onLogin }: { onLogin: () => void }) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [show, setShow] = useState(false)
-
   const login = async () => {
     setLoading(true)
     setError('')
@@ -28,16 +26,8 @@ function AdminLogin({ onLogin }: { onLogin: () => void }) {
     setLoading(false)
   }
 
-  if (!show) {
-    return (
-      <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-        <button onClick={() => setShow(true)} style={{ background: 'none', border: 'none', color: 'transparent', cursor: 'default', fontSize: 1 }}>·</button>
-      </main>
-    )
-  }
-
   return (
-    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
+    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, paddingTop: 100 }}>
       <div style={{ width: '100%', maxWidth: 360, background: 'rgba(15,18,28,0.98)', border: '1px solid var(--border-strong)', borderRadius: 24, padding: 32 }}>
         <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Admin Sign In</h2>
         <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 24 }}>Enter your credentials to continue.</p>
@@ -50,10 +40,7 @@ function AdminLogin({ onLogin }: { onLogin: () => void }) {
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && login()} className="field-input" />
         </div>
         {error && <p style={{ color: '#ff6b6b', fontSize: 13, marginBottom: 16 }}>{error}</p>}
-        <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={() => setShow(false)} className="btn-ghost" style={{ flex: 1 }}>Cancel</button>
-          <button onClick={login} disabled={loading} className="btn-primary" style={{ flex: 1 }}>{loading ? 'Signing in...' : 'Sign in'}</button>
-        </div>
+        <button onClick={login} disabled={loading} className="btn-primary" style={{ width: '100%' }}>{loading ? 'Signing in...' : 'Sign in'}</button>
       </div>
     </main>
   )
