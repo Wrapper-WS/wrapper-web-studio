@@ -111,10 +111,7 @@ export default function Cookies() {
                 <>
                   <p style={{ marginBottom: 8 }}>If you have any questions about our use of cookies or other technologies, please email us at <a href="mailto:sp3techinitiative@gmail.com" style={{ color: 'var(--teal)' }}>sp3techinitiative@gmail.com</a> or by post to:</p>
                   <p style={{ color: 'var(--text)' }}>
-                    Wrapper Web Studio<br />
-                    1 Sura Agbiaka St<br />
-                    Lagos, Lagos 102214<br />
-                    Nigeria<br />
+                      a<br />
                     Phone: (+234) 09060572687
                   </p>
                 </>

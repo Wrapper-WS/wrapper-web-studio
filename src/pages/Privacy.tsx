@@ -29,7 +29,7 @@ export default function Privacy() {
             This Privacy Notice for <strong style={{ color: 'var(--text)' }}>Wrapper Web Studio</strong> ("we," "us," or "our") describes how and why we might access, collect, store, use, and/or share ("process") your personal information when you use our services ("Services"), including when you:
           </p>
           <ul style={{ paddingLeft: 20, marginBottom: 16 }}>
-            <li style={{ marginBottom: 8 }}>Visit our website at <a href="https://wrapperwebstudio.com" style={{ color: 'var(--teal)' }}>wrapperwebstudio.com</a> or any website of ours that links to this Privacy Notice</li>
+            <li style={{ marginBottom: 8 }}>Visit our website at <a href="https://wrapperwebstudio.vercel.app" style={{ color: 'var(--teal)' }}>wrapperwebstudio.verccel.app</a> or any website of ours that links to this Privacy Notice</li>
             <li>Engage with us in other related ways, including any marketing or events</li>
           </ul>
           <p style={{ marginBottom: 24 }}>

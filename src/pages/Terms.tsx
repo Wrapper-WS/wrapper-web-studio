@@ -4,7 +4,7 @@ export default function Terms() {
       title: 'AGREEMENT TO OUR LEGAL TERMS',
       content: (
         <>
-          <p style={{ marginBottom: 12 }}>We are <strong style={{ color: 'var(--text)' }}>Wrapper Web Studio</strong> ("Company," "we," "us," "our"). We operate the website <a href="https://wrapperwebstudio.com" style={{ color: 'var(--teal)' }}>wrapperwebstudio.com</a>, as well as any other related products and services that refer or link to these legal terms (collectively, the "Services").</p>
+          <p style={{ marginBottom: 12 }}>We are <strong style={{ color: 'var(--text)' }}>Wrapper Web Studio</strong> ("Company," "we," "us," "our"). We operate the website <a href="https://wrapperwebstudio.vercel.app" style={{ color: 'var(--teal)' }}>wrapperwebstudio.vercel.app</a>, as well as any other related products and services that refer or link to these legal terms (collectively, the "Services").</p>
           <p style={{ marginBottom: 12 }}>You can contact us by email at <a href="mailto:sp3techinitiative@gmail.com" style={{ color: 'var(--teal)' }}>sp3techinitiative@gmail.com</a> or by mail to 1 Sura Agbiaka Street, Isolo, Lagos 102214, Nigeria.</p>
           <p>These Legal Terms constitute a legally binding agreement made between you and Wrapper Web Studio, concerning your access to and use of the Services. By accessing the Services, you have read, understood, and agreed to be bound by all of these Legal Terms. IF YOU DO NOT AGREE WITH ALL OF THESE LEGAL TERMS, THEN YOU ARE EXPRESSLY PROHIBITED FROM USING THE SERVICES AND YOU MUST DISCONTINUE USE IMMEDIATELY.</p>
         </>

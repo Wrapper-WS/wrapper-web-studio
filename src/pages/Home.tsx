@@ -69,7 +69,7 @@ export default function Home() {
           <div style={{ marginBottom: 16 }}>
             <span className="tag">
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--teal)', display: 'inline-block', boxShadow: '0 0 8px var(--teal)' }} />
-              Now booking July launches
+              Now booking
             </span>
           </div>
 
