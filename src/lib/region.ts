@@ -126,7 +126,7 @@ export function getRegionByCode(countryCode: string): Region {
 }
 
 export function formatRegionPrice(amount: number, region: Region): string {
-  const { symbol, currency } = region
+  const { currency } = region
   if (currency === 'NGN') return `₦${amount.toLocaleString()}`
   if (currency === 'GHS') return `GH₵${amount.toLocaleString()}`
   if (currency === 'KES') return `KSh ${amount.toLocaleString()}`

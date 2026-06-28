@@ -299,7 +299,7 @@ export default function PlanDetail() {
               <div>
                 <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--muted)', fontFamily: 'Space Grotesk, sans-serif', marginBottom: 3 }}>READY TO START?</p>
                 <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 18, fontWeight: 700 }}>
-                  {plan.name} — {formatPrice(appliedPromo ? discountedPrice : plan.price)}
+                  {plan.name} — {formatRegionPrice(appliedPromo ? discountedPrice : planPrice, region)}
                   {selectedAddOns.length > 0 && (
                     <span style={{ color: 'var(--teal)', fontSize: 14, fontWeight: 600, marginLeft: 8 }}>
                       + {formatRegionPrice(selectedAddOns.reduce((s, a) => s + a.price, 0), region)} add-ons

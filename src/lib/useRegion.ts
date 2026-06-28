@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext } from 'react'
+import { createContext, useContext } from 'react'
 import type { Region } from './region'
 import { getRegionByCode, DEFAULT_REGION } from './region'
 

@@ -257,7 +257,7 @@ export default function Pricing() {
                   ))}
                 </div>
                 <p style={{ color: 'var(--teal)', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: 17 }}>
-                  {formatPrice(s.price)}{' '}
+                  {`₦${s.price.toLocaleString()}`}{' '}
                   <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: 12 }}>/ one-time</span>
                 </p>
               </div>
