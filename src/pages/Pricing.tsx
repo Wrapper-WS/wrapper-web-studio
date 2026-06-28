@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Check, Sparkles } from 'lucide-react'
-import { plans, formatPrice } from '../lib/plans'
+import { plans } from '../lib/plans'
+import { useRegion } from '../lib/useRegion'
+import { formatRegionPrice } from '../lib/region'
 
 function RevealCard({ children, delay = 0, style = {} }: { children: React.ReactNode; delay?: number; style?: React.CSSProperties }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -75,6 +77,13 @@ const services = [
 ]
 
 export default function Pricing() {
+  const { region } = useRegion()
+
+  const fmt = (planId: string) => {
+    const price = region.prices[planId as keyof typeof region.prices]
+    return formatRegionPrice(price, region)
+  }
+
   return (
     <main style={{ paddingTop: 100 }}>
       {/* Hero */}
@@ -137,7 +146,7 @@ export default function Pricing() {
 
                   <div style={{ marginBottom: 18 }}>
                     <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 34, fontWeight: 700, color: accent.priceColor }}>
-                      {formatPrice(plan.price)}
+                      {fmt(plan.id)}
                     </span>
                     <span style={{ color: 'var(--muted)', fontSize: 13, marginLeft: 4 }}>/ one-time</span>
                   </div>

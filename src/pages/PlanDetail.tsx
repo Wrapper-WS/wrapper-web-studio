@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Check, Star, AlertCircle, Tag, X } from 'lucide-react'
-import { getPlan, formatPrice } from '../lib/plans'
+import { getPlan } from '../lib/plans'
+import { useRegion } from '../lib/useRegion'
+import { formatRegionPrice } from '../lib/region'
 import { supabase } from '../lib/supabase'
 import type { Upsell } from '../lib/supabase'
 
@@ -33,6 +35,9 @@ export default function PlanDetail() {
   const navigate = useNavigate()
   const plan = getPlan(planId ?? '')
 
+  const { region } = useRegion()
+  const planPrice = region.prices[plan?.id as keyof typeof region.prices] ?? plan?.price ?? 0
+
   const [promoCode, setPromoCode] = useState('')
   const [appliedPromo, setAppliedPromo] = useState<{ code: string; discount: number } | null>(null)
   const [promoError, setPromoError] = useState('')
@@ -56,8 +61,8 @@ export default function PlanDetail() {
   }
 
   const promoEligible = PROMO_ELIGIBLE.includes(plan.id)
-  const discountAmount = appliedPromo ? Math.round((plan.price * appliedPromo.discount) / 100) : 0
-  const discountedPrice = plan.price - discountAmount
+  const discountAmount = appliedPromo ? Math.round((planPrice * appliedPromo.discount) / 100) : 0
+  const discountedPrice = planPrice - discountAmount
   const addOnsTotal = selectedAddOns.reduce((sum, a) => sum + a.price, 0)
   const total = discountedPrice + addOnsTotal
 
@@ -100,7 +105,7 @@ export default function PlanDetail() {
   const handleOrder = () => {
     sessionStorage.setItem('order_plan', JSON.stringify({
       planId: plan.id, promoCode: appliedPromo?.code ?? null,
-      discountAmount, discountedPrice,
+      planPrice, discountAmount, discountedPrice, currency: region.currency, countryCode: region.countryCode,
       addOns: selectedAddOns.map((a) => ({ id: a.id, name: a.name, price: a.price })),
       total,
     }))
@@ -144,11 +149,11 @@ export default function PlanDetail() {
               {appliedPromo ? (
                 <div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-                    <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 38, fontWeight: 700, color: 'var(--teal)' }}>{formatPrice(discountedPrice)}</span>
+                    <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 38, fontWeight: 700, color: 'var(--teal)' }}>{formatRegionPrice(discountedPrice, region)}</span>
                     <span style={{ color: 'var(--muted)', fontSize: 14 }}>/ one-time</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                    <span style={{ color: 'var(--muted)', fontSize: 13, textDecoration: 'line-through' }}>{formatPrice(plan.price)}</span>
+                    <span style={{ color: 'var(--muted)', fontSize: 13, textDecoration: 'line-through' }}>{formatRegionPrice(planPrice, region)}</span>
                     <span style={{ background: 'var(--teal-dim)', color: 'var(--teal)', fontSize: 12, fontWeight: 700, padding: '2px 8px', borderRadius: 6, fontFamily: 'Space Grotesk, sans-serif' }}>
                       {appliedPromo.discount}% OFF · {appliedPromo.code.toUpperCase()}
                     </span>
@@ -156,7 +161,7 @@ export default function PlanDetail() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                  <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 38, fontWeight: 700 }}>{formatPrice(plan.price)}</span>
+                  <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 38, fontWeight: 700 }}>{formatRegionPrice(planPrice, region)}</span>
                   <span style={{ color: 'var(--muted)', fontSize: 14 }}>/ one-time</span>
                 </div>
               )}
@@ -266,7 +271,7 @@ export default function PlanDetail() {
                       <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 10 }}>Pay once — added to your order total.</p>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ color: 'var(--teal)', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: 17 }}>
-                          {formatPrice(upsell.price)}<span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: 12 }}> / one-time</span>
+                          {formatRegionPrice(upsell.price, region)}<span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: 12 }}> / one-time</span>
                         </span>
                         <button onClick={() => toggleAddOn(upsell)} style={{ background: selected ? 'var(--teal)' : 'var(--surface)', border: `1px solid ${selected ? 'var(--teal)' : 'var(--border-strong)'}`, color: selected ? '#0a0d14' : 'var(--text)', borderRadius: 8, padding: '6px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'Space Grotesk, sans-serif', transition: 'all 0.2s ease' }}>
                           {selected ? '✓ Added' : '+ Add'}
@@ -280,7 +285,7 @@ export default function PlanDetail() {
               {selectedAddOns.length > 0 && (
                 <div style={{ marginTop: 18, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, padding: '16px 18px' }}>
                   <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>TOTAL</p>
-                  <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 26, fontWeight: 700, color: 'var(--teal)' }}>{formatPrice(total)}</p>
+                  <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 26, fontWeight: 700, color: 'var(--teal)' }}>{formatRegionPrice(total, region)}</p>
                 </div>
               )}
             </div>
@@ -297,13 +302,13 @@ export default function PlanDetail() {
                   {plan.name} — {formatPrice(appliedPromo ? discountedPrice : plan.price)}
                   {selectedAddOns.length > 0 && (
                     <span style={{ color: 'var(--teal)', fontSize: 14, fontWeight: 600, marginLeft: 8 }}>
-                      + {formatPrice(selectedAddOns.reduce((s, a) => s + a.price, 0))} add-ons
+                      + {formatRegionPrice(selectedAddOns.reduce((s, a) => s + a.price, 0), region)} add-ons
                     </span>
                   )}
                 </p>
               </div>
               <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 22, fontWeight: 700, color: 'var(--teal)' }}>
-                {formatPrice(total)}
+                {formatRegionPrice(total, region)}
               </p>
             </div>
             <button

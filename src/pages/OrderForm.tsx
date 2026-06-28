@@ -1,16 +1,21 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Send, Check } from 'lucide-react'
-import { getPlan, formatPrice } from '../lib/plans'
+import { getPlan } from '../lib/plans'
+import { useRegion } from '../lib/useRegion'
+import { formatRegionPrice } from '../lib/region'
 import { supabase } from '../lib/supabase'
 
 type OrderState = {
   planId: string
   promoCode: string | null
+  planPrice: number
   discountAmount: number
   discountedPrice: number
   addOns: { id: string; name: string; price: number }[]
   total: number
+  currency?: string
+  countryCode?: string
 }
 
 type FormData = {
@@ -77,6 +82,7 @@ const colorOptions = [
 export default function OrderForm() {
   const { planId } = useParams<{ planId: string }>()
   const plan = getPlan(planId ?? '')
+  const { region } = useRegion()
 
   const [orderState, setOrderState] = useState<OrderState | null>(null)
   const [step, setStep] = useState(1)
@@ -147,6 +153,8 @@ export default function OrderForm() {
         website_style: form.websiteStyle, preferred_colors: form.preferredColors,
         color_variant: form.colorVariant, phone_number: form.phoneNumber,
         extra_notes: form.extraNotes, status: 'new',
+        currency: orderState?.currency ?? region.currency,
+        country_code: orderState?.countryCode ?? region.countryCode,
       })
       if (error) throw error
       sessionStorage.removeItem('order_plan')
@@ -199,8 +207,8 @@ export default function OrderForm() {
             <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: 16 }}>Order Your {plan.name} Plan</p>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: 20, color: 'var(--teal)' }}>{formatPrice(total)}</p>
-            {discountAmount > 0 && <p style={{ color: 'var(--muted)', fontSize: 12, textDecoration: 'line-through' }}>{formatPrice(plan.price + addOns.reduce((s, a) => s + a.price, 0))}</p>}
+            <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: 20, color: 'var(--teal)' }}>{formatRegionPrice(total, region)}</p>
+            {discountAmount > 0 && <p style={{ color: 'var(--muted)', fontSize: 12, textDecoration: 'line-through' }}>{formatRegionPrice((orderState?.planPrice ?? 0) + addOns.reduce((s, a) => s + a.price, 0), region)}</p>}
           </div>
         </div>
 
@@ -219,7 +227,7 @@ export default function OrderForm() {
             <p style={{ fontSize: 10, color: 'var(--muted)', fontFamily: 'Space Grotesk, sans-serif', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>ADD-ONS</p>
             {addOns.map((a) => (
               <div key={a.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--muted)', marginBottom: 5 }}>
-                <span>+ {a.name}</span><span>{formatPrice(a.price)}</span>
+                <span>+ {a.name}</span><span>{formatRegionPrice(a.price, region)}</span>
               </div>
             ))}
           </div>

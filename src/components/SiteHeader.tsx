@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
+import { RegionBadge } from './RegionBadge'
 
 const navLinks = [
   { to: '/', label: 'Home' },
@@ -142,7 +143,9 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        {/* Mobile hamburger */}
+        {/* Region badge + mobile hamburger */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <RegionBadge />
         <button
           onClick={() => setOpen((o) => !o)}
           className="show-mobile"
