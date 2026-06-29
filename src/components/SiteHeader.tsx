@@ -64,12 +64,16 @@ export function SiteHeader() {
               }}
             />
           </div>
-          <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: 16, color: 'var(--text)', letterSpacing: '-0.01em' }}>
+          <span style={{
+            fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600,
+            fontSize: 16, color: 'var(--text)', letterSpacing: '-0.01em',
+            whiteSpace: 'nowrap',
+          }}>
             Wrapper Web Studio
           </span>
         </Link>
 
-        {/* Desktop nav */}
+        {/* Desktop nav links */}
         <nav className="hidden-mobile" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           {navLinks.map((link) => (
             <Link
@@ -82,32 +86,41 @@ export function SiteHeader() {
                 background: isActive(link.to) ? 'rgba(255,255,255,0.06)' : 'transparent',
                 transition: 'all 0.2s ease', fontFamily: 'Inter, sans-serif',
               }}
-              onMouseEnter={(e) => { if (!isActive(link.to)) { e.currentTarget.style.color = 'var(--text)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)' } }}
-              onMouseLeave={(e) => { if (!isActive(link.to)) { e.currentTarget.style.color = 'var(--muted)'; e.currentTarget.style.background = 'transparent' } }}
+              onMouseEnter={(e) => {
+                if (!isActive(link.to)) {
+                  e.currentTarget.style.color = 'var(--text)'
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive(link.to)) {
+                  e.currentTarget.style.color = 'var(--muted)'
+                  e.currentTarget.style.background = 'transparent'
+                }
+              }}
             >
               {link.label}
             </Link>
           ))}
+          {/* Region badge on desktop — sits in nav row, not crowding the logo */}
+          <RegionBadge />
         </nav>
 
-        {/* Right side — region badge + hamburger */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <RegionBadge />
-          <button
-            onClick={() => setOpen((o) => !o)}
-            className="show-mobile"
-            aria-label={open ? 'Close menu' : 'Open menu'}
-            style={{
-              width: 38, height: 38, borderRadius: 999,
-              border: '1px solid var(--border-strong)',
-              background: 'rgba(255,255,255,0.05)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', color: 'var(--text)', transition: 'all 0.2s ease',
-            }}
-          >
-            {open ? <X size={18} /> : <Menu size={18} />}
-          </button>
-        </div>
+        {/* Mobile hamburger only */}
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className="show-mobile"
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          style={{
+            width: 38, height: 38, borderRadius: 999,
+            border: '1px solid var(--border-strong)',
+            background: 'rgba(255,255,255,0.05)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', color: 'var(--text)', transition: 'all 0.2s ease',
+          }}
+        >
+          {open ? <X size={18} /> : <Menu size={18} />}
+        </button>
       </div>
 
       {/* Mobile dropdown */}
@@ -120,6 +133,7 @@ export function SiteHeader() {
           padding: '8px', display: 'flex', flexDirection: 'column', gap: 2,
           animation: 'fadeDown 0.2s ease',
         }}>
+          {/* Nav links */}
           {navLinks.map((link) => (
             <Link
               key={link.to}
@@ -135,6 +149,19 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
+
+          {/* Region picker at the bottom of mobile menu */}
+          <div style={{
+            marginTop: 4,
+            padding: '10px 16px 6px',
+            borderTop: '1px solid var(--border)',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          }}>
+            <span style={{ fontSize: 12, color: 'var(--muted)', fontFamily: 'Inter, sans-serif' }}>
+              Region & Currency
+            </span>
+            <RegionBadge />
+          </div>
         </div>
       )}
 
