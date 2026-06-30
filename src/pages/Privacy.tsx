@@ -1,155 +1,270 @@
-export default function Privacy() {
+import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Check, Sparkles } from 'lucide-react'
+import { plans } from '../lib/plans'
+import { useRegion } from '../lib/useRegion'
+import { formatRegionPrice, getUpsellPrice } from '../lib/region'
+import { supabase } from '../lib/supabase'
+import type { Upsell } from '../lib/supabase'
+
+function RevealCard({ children, delay = 0, style = {} }: { children: React.ReactNode; delay?: number; style?: React.CSSProperties }) {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { el.style.opacity = '1'; el.style.transform = 'translateY(0)' } },
+      { threshold: 0.08 }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+  return (
+    <div ref={ref} style={{ opacity: 0, transform: 'translateY(24px)', transition: `opacity 0.55s ease ${delay}ms, transform 0.55s ease ${delay}ms`, ...style }}>
+      {children}
+    </div>
+  )
+}
+
+const planAccents: Record<string, { border: string; glow: string; priceColor: string; bg: string }> = {
+  starter: {
+    bg: 'linear-gradient(135deg, rgba(0,212,184,0.04), rgba(255,255,255,0.02))',
+    border: 'rgba(0,212,184,0.12)', glow: 'rgba(0,212,184,0.06)', priceColor: 'var(--text)',
+  },
+  'starter-plus': {
+    bg: 'linear-gradient(135deg, rgba(155,93,229,0.05), rgba(255,255,255,0.02))',
+    border: 'rgba(155,93,229,0.15)', glow: 'rgba(155,93,229,0.08)', priceColor: 'var(--purple)',
+  },
+  business: {
+    bg: 'linear-gradient(135deg, rgba(0,212,184,0.08), rgba(155,93,229,0.06))',
+    border: 'rgba(0,212,184,0.28)', glow: 'rgba(0,212,184,0.12)', priceColor: 'var(--teal)',
+  },
+  pro: {
+    bg: 'linear-gradient(135deg, rgba(155,93,229,0.08), rgba(0,212,184,0.05))',
+    border: 'rgba(155,93,229,0.22)', glow: 'rgba(155,93,229,0.1)', priceColor: 'var(--purple)',
+  },
+  custom: {
+    bg: 'linear-gradient(135deg, rgba(255,200,80,0.05), rgba(255,255,255,0.02))',
+    border: 'rgba(255,200,80,0.15)', glow: 'rgba(255,200,80,0.06)', priceColor: '#f5c842',
+  },
+}
+
+const checkColors: Record<string, string> = {
+  starter: 'var(--teal)', 'starter-plus': 'var(--purple)', business: 'var(--teal)',
+  pro: 'var(--purple)', custom: '#f5c842',
+}
+
+export default function Pricing() {
+  const { region } = useRegion()
+  const [upsells, setUpsells] = useState<Upsell[]>([])
+
+  useEffect(() => {
+    supabase.from('upsells').select('*').eq('active', true).order('created_at', { ascending: true }).then(({ data }) => {
+      if (data) setUpsells(data)
+    })
+  }, [])
+
+  const fmt = (planId: string) => {
+    const price = region.prices[planId as keyof typeof region.prices]
+    return formatRegionPrice(price, region)
+  }
+
   return (
     <main style={{ paddingTop: 100 }}>
-      <section style={{ padding: '40px 16px 32px', maxWidth: 700, margin: '0 auto' }}>
-        <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)', fontFamily: 'Space Grotesk, sans-serif', marginBottom: 16 }}>
-          LEGAL
-        </p>
-        <h1 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 'clamp(32px, 6vw, 52px)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 8 }}>
-          Privacy <span className="gradient-text">Policy</span>
+      {/* Hero */}
+      <section style={{ textAlign: 'center', padding: '36px 16px 48px', maxWidth: 680, margin: '0 auto' }}>
+        <div style={{ marginBottom: 18 }}>
+          <span className="tag"><Sparkles size={12} />Transparent pricing</span>
+        </div>
+        <h1 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 'clamp(28px, 6vw, 50px)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 14 }}>
+          Plans built to <span className="gradient-text">scale with you</span>
         </h1>
+        <p style={{ color: 'var(--muted)', fontSize: 15, lineHeight: 1.6 }}>
+          One-time builds. No hidden fees. Pick a tier and we'll ship your store.
+        </p>
       </section>
 
-      <section style={{ padding: '0 16px 100px', maxWidth: 700, margin: '0 auto' }}>
-        <div
-          style={{
-            background: 'var(--surface)',
-            border: '1px solid var(--border)',
-            borderRadius: 20,
-            padding: 'clamp(24px, 4vw, 40px)',
-            lineHeight: 1.8,
-            fontSize: 14,
-            color: 'var(--muted)',
-          }}
-        >
-          <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', color: 'var(--text)', fontSize: 20, fontWeight: 700, marginBottom: 4 }}>PRIVACY POLICY</h2>
-          <p style={{ marginBottom: 24, fontSize: 13 }}>Last updated May 11, 2026</p>
+      {/* Plan cards */}
+      <section style={{ padding: '0 16px 60px', maxWidth: 800, margin: '0 auto' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {plans.map((plan, i) => {
+            const accent = planAccents[plan.id] ?? planAccents.starter
+            const checkColor = checkColors[plan.id] ?? 'var(--teal)'
+            const isCustom = plan.id === 'custom'
+            return (
+              <RevealCard key={plan.id} delay={i * 80}>
+                <div
+                  style={{
+                    background: accent.bg, border: `1px solid ${accent.border}`, borderRadius: 20,
+                    padding: '26px 22px', position: 'relative',
+                    transition: 'transform 0.25s ease, box-shadow 0.25s ease', cursor: 'default',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 20px 50px ${accent.glow}` }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
+                >
+                  {plan.badge && (
+                    <div style={{ marginBottom: 14 }}>
+                      <span style={{
+                        background: 'linear-gradient(135deg, var(--teal), var(--purple))',
+                        color: '#0a0d14', fontSize: 11, fontWeight: 700,
+                        fontFamily: 'Space Grotesk, sans-serif',
+                        padding: '3px 10px', borderRadius: 999, letterSpacing: '0.05em',
+                      }}>
+                        {plan.badge}
+                      </span>
+                    </div>
+                  )}
+                  {isCustom && (
+                    <div style={{ marginBottom: 14 }}>
+                      <span style={{
+                        background: 'rgba(255,200,80,0.12)', color: '#f5c842',
+                        fontSize: 11, fontWeight: 700, fontFamily: 'Space Grotesk, sans-serif',
+                        padding: '3px 10px', borderRadius: 999, letterSpacing: '0.05em',
+                        border: '1px solid rgba(255,200,80,0.25)',
+                      }}>
+                        FOR SCHOOLS, HOSPITALS & ENTERPRISES
+                      </span>
+                    </div>
+                  )}
 
-          <p style={{ marginBottom: 16 }}>
-            This Privacy Notice for <strong style={{ color: 'var(--text)' }}>Wrapper Web Studio</strong> ("we," "us," or "our") describes how and why we might access, collect, store, use, and/or share ("process") your personal information when you use our services ("Services"), including when you:
-          </p>
-          <ul style={{ paddingLeft: 20, marginBottom: 16 }}>
-            <li style={{ marginBottom: 8 }}>Visit our website at <a href="https://wrapperwebstudio.vercel.app" style={{ color: 'var(--teal)' }}>wrapperwebstudio.verccel.app</a> or any website of ours that links to this Privacy Notice</li>
-            <li>Engage with us in other related ways, including any marketing or events</li>
-          </ul>
-          <p style={{ marginBottom: 24 }}>
-            <strong style={{ color: 'var(--text)' }}>Questions or concerns?</strong> Reading this Privacy Notice will help you understand your privacy rights and choices. If you still have any questions, please contact us at{' '}
-            <a href="mailto:sp3techinitiative@gmail.com" style={{ color: 'var(--teal)' }}>sp3techinitiative@gmail.com</a>.
-          </p>
+                  <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 22, fontWeight: 700, marginBottom: 3 }}>
+                    {plan.name}
+                  </h2>
+                  <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 16 }}>{plan.tagline}</p>
 
-          {[
-            {
-              title: '1. WHAT INFORMATION DO WE COLLECT?',
-              content: (
-                <>
-                  <p style={{ marginBottom: 12 }}>We collect personal information that you voluntarily provide to us when you express an interest in obtaining information about us or our products and Services, or when you contact us. This includes:</p>
-                  <ul style={{ paddingLeft: 20, marginBottom: 12 }}>
-                    <li style={{ marginBottom: 6 }}>Names</li>
-                    <li style={{ marginBottom: 6 }}>Phone numbers</li>
-                    <li style={{ marginBottom: 6 }}>Email addresses</li>
-                    <li style={{ marginBottom: 6 }}>Billing addresses</li>
-                    <li>Contact preferences</li>
-                  </ul>
-                  <p style={{ marginBottom: 12 }}><strong style={{ color: 'var(--text)' }}>Sensitive Information.</strong> We do not process sensitive information.</p>
-                  <p><strong style={{ color: 'var(--text)' }}>Payment Data.</strong> We may collect data necessary to process your payment if you choose to make purchases. All payment data is handled and stored by Flutterwave. You may find their privacy notice at <a href="https://dispute.flutterwave.com/privacy" style={{ color: 'var(--teal)' }}>https://dispute.flutterwave.com/privacy</a>.</p>
-                </>
-              ),
-            },
-            {
-              title: '2. HOW DO WE PROCESS YOUR INFORMATION?',
-              content: (
-                <p>We process your information to provide, improve, and administer our Services, communicate with you, for security and fraud prevention, and to comply with law. Specifically: to deliver services to you, to respond to your inquiries, to send administrative information, to fulfill and manage your orders, and to request feedback.</p>
-              ),
-            },
-            {
-              title: '3. WHEN AND WITH WHOM DO WE SHARE YOUR PERSONAL INFORMATION?',
-              content: (
-                <p>We may share information in connection with a merger, sale of company assets, financing, or acquisition of all or a portion of our business to another company. We do not sell your personal information to third parties.</p>
-              ),
-            },
-            {
-              title: '4. DO WE USE COOKIES AND OTHER TRACKING TECHNOLOGIES?',
-              content: (
-                <p>We may use cookies and similar tracking technologies (like web beacons and pixels) to gather information when you interact with our Services. Some online tracking technologies help us maintain the security of our Services, prevent crashes, fix bugs, save your preferences, and assist with basic site functions. Specific information about how we use such technologies is set out in our Cookie Policy.</p>
-              ),
-            },
-            {
-              title: '5. HOW LONG DO WE KEEP YOUR INFORMATION?',
-              content: (
-                <p>We will only keep your personal information for as long as it is necessary for the purposes set out in this Privacy Notice. We retain customer information only as long as necessary to provide services, manage projects, maintain client records, and comply with legal obligations.</p>
-              ),
-            },
-            {
-              title: '6. HOW DO WE KEEP YOUR INFORMATION SAFE?',
-              content: (
-                <p>We have implemented appropriate and reasonable technical and organizational security measures designed to protect the security of any personal information we process. However, no electronic transmission over the Internet or information storage technology can be guaranteed to be 100% secure.</p>
-              ),
-            },
-            {
-              title: '7. DO WE COLLECT INFORMATION FROM MINORS?',
-              content: (
-                <p>We do not knowingly collect, solicit data from, or market to children under 18 years of age. By using the Services, you represent that you are at least 18. If you become aware of any data we may have collected from children under age 18, please contact us at <a href="mailto:sp3techinitiative@gmail.com" style={{ color: 'var(--teal)' }}>sp3techinitiative@gmail.com</a>.</p>
-              ),
-            },
-            {
-              title: '8. WHAT ARE YOUR PRIVACY RIGHTS?',
-              content: (
-                <>
-                  <p style={{ marginBottom: 12 }}>You may review, change, or terminate your account at any time. You have the right to withdraw your consent to our processing of your personal information at any time by contacting us.</p>
-                  <p><strong style={{ color: 'var(--text)' }}>Cookies and similar technologies:</strong> Most web browsers are set to accept cookies by default. If you prefer, you can choose to set your browser to remove or reject cookies.</p>
-                </>
-              ),
-            },
-            {
-              title: '9. CONTROLS FOR DO-NOT-TRACK FEATURES',
-              content: (
-                <p>Most web browsers and some mobile operating systems include a Do-Not-Track ("DNT") feature. At this stage, no uniform technology standard for recognizing and implementing DNT signals has been finalized. As such, we do not currently respond to DNT browser signals.</p>
-              ),
-            },
-            {
-              title: '10. DO OTHER REGIONS HAVE SPECIFIC PRIVACY RIGHTS?',
-              content: (
-                <>
-                  <p style={{ marginBottom: 12 }}><strong style={{ color: 'var(--text)' }}>Republic of South Africa:</strong> At any time, you have the right to request access to or correction of your personal information.</p>
-                  <p>If you are unsatisfied with how we address any complaint, you can contact the Information Regulator (South Africa) at <a href="mailto:enquiries@inforegulator.org.za" style={{ color: 'var(--teal)' }}>enquiries@inforegulator.org.za</a>.</p>
-                </>
-              ),
-            },
-            {
-              title: '11. DO WE MAKE UPDATES TO THIS NOTICE?',
-              content: (
-                <p>We may update this Privacy Notice from time to time. The updated version will be indicated by an updated "Revised" date at the top of this Privacy Notice.</p>
-              ),
-            },
-            {
-              title: '12. HOW CAN YOU CONTACT US ABOUT THIS NOTICE?',
-              content: (
-                <>
-                  <p style={{ marginBottom: 8 }}>If you have questions or comments about this notice, you may email us at <a href="mailto:sp3techinitiative@gmail.com" style={{ color: 'var(--teal)' }}>sp3techinitiative@gmail.com</a> or contact us by post at:</p>
-                  <p style={{ color: 'var(--text)' }}>
-                    Wrapper Web Studio<br />
-                    1 Sura Agbiaka St<br />
-                    Lagos, Lagos 102214<br />
-                    Nigeria
-                    </p>
-                </>
-              ),
-            },
-            {
-              title: '13. HOW CAN YOU REVIEW, UPDATE, OR DELETE THE DATA WE COLLECT FROM YOU?',
-              content: (
-                <p>Based on the applicable laws of your country, you may have the right to request access to the personal information we collect from you, correct inaccuracies, or delete your personal information. To request this, please contact us at <a href="mailto:sp3techinitiative@gmail.com" style={{ color: 'var(--teal)' }}>sp3techinitiative@gmail.com</a>.</p>
-              ),
-            },
-          ].map((section) => (
-            <div key={section.title} style={{ marginBottom: 32, paddingTop: 24, borderTop: '1px solid var(--border)' }}>
-              <h3 style={{ fontFamily: 'Space Grotesk, sans-serif', color: 'var(--text)', fontSize: 15, fontWeight: 700, marginBottom: 12 }}>
-                {section.title}
-              </h3>
-              {section.content}
-            </div>
-          ))}
+                  <div style={{ marginBottom: 18 }}>
+                    {isCustom ? (
+                      <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 22, fontWeight: 700, color: accent.priceColor }}>
+                        Let's discuss your price
+                      </span>
+                    ) : (
+                      <>
+                        <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 34, fontWeight: 700, color: accent.priceColor }}>
+                          {fmt(plan.id)}
+                        </span>
+                        <span style={{ color: 'var(--muted)', fontSize: 13, marginLeft: 4 }}>/ one-time</span>
+                      </>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 22 }}>
+                    {plan.features.map((f) => (
+                      <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{
+                          width: 20, height: 20, borderRadius: '50%',
+                          background: `${checkColor}18`, border: `1px solid ${checkColor}50`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                        }}>
+                          <Check size={11} color={checkColor} strokeWidth={2.5} />
+                        </div>
+                        <span style={{ fontSize: 14, color: plan.highlight ? 'var(--text)' : 'rgba(240,240,245,0.8)' }}>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Link
+                    to={`/plans/${plan.id}`}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      width: '100%', padding: '12px', borderRadius: 999,
+                      border: `1px solid ${accent.border}`,
+                      background: plan.highlight ? 'var(--teal)' : 'rgba(255,255,255,0.05)',
+                      color: plan.highlight ? '#0a0d14' : 'var(--text)',
+                      fontFamily: 'Space Grotesk, sans-serif', fontWeight: 600, fontSize: 14,
+                      textDecoration: 'none', transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = plan.highlight ? 'var(--teal)' : `${checkColor}18`
+                      e.currentTarget.style.borderColor = checkColor
+                      e.currentTarget.style.color = plan.highlight ? '#0a0d14' : checkColor
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = plan.highlight ? 'var(--teal)' : 'rgba(255,255,255,0.05)'
+                      e.currentTarget.style.borderColor = accent.border
+                      e.currentTarget.style.color = plan.highlight ? '#0a0d14' : 'var(--text)'
+                    }}
+                  >
+                    {isCustom ? 'Explore Custom' : 'Select Plan'}
+                  </Link>
+                </div>
+              </RevealCard>
+            )
+          })}
         </div>
+
+        <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 13, marginTop: 22, lineHeight: 1.5 }}>
+          All plans include responsive mobile-first design — built for businesses, online vendors, and service providers.
+        </p>
+      </section>
+
+      {/* Growth services — pulled live from admin-managed upsells */}
+      <section style={{ padding: '0 16px 100px', maxWidth: 800, margin: '0 auto' }}>
+        <RevealCard style={{ textAlign: 'center', marginBottom: 36 }}>
+          <div style={{ marginBottom: 14 }}>
+            <span className="tag"><Sparkles size={12} />Growth & Support Services</span>
+          </div>
+          <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 'clamp(22px, 4vw, 34px)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 10 }}>
+            Keep growing <span className="gradient-text">after launch</span>
+          </h2>
+          <p style={{ color: 'var(--muted)', fontSize: 14, maxWidth: 460, margin: '0 auto', lineHeight: 1.6 }}>
+            Optional one-time services that help your business move faster, sell more, and stay healthy long after your store goes live.
+          </p>
+        </RevealCard>
+
+        {upsells.length > 0 && (
+          <>
+            <p style={{ color: 'var(--muted)', fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16, fontFamily: 'Space Grotesk, sans-serif' }}>
+              OUR SERVICES · All one-time purchases
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {upsells.map((s, i) => (
+                <RevealCard key={s.id} delay={i * 60}>
+                  <div
+                    className="glass-card"
+                    style={{ padding: '20px 18px', transition: 'transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease' }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-2px)'
+                      e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,212,184,0.07)'
+                      e.currentTarget.style.borderColor = 'rgba(0,212,184,0.2)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)'
+                      e.currentTarget.style.boxShadow = 'none'
+                      e.currentTarget.style.borderColor = 'var(--border)'
+                    }}
+                  >
+                    <div style={{ marginBottom: 6 }}>
+                      <span style={{ fontSize: 10, fontWeight: 600, fontFamily: 'Space Grotesk, sans-serif', letterSpacing: '0.08em', color: 'var(--muted)', background: 'var(--surface)', border: '1px solid var(--border)', padding: '2px 7px', borderRadius: 5 }}>
+                        ONE-TIME
+                      </span>
+                    </div>
+                    <h3 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 16, fontWeight: 700, marginBottom: 5 }}>{s.name}</h3>
+                    <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 12, lineHeight: 1.5 }}>{s.description}</p>
+                    {s.features.length > 0 && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
+                        {s.features.map((f) => (
+                          <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <Check size={12} color="var(--teal)" strokeWidth={2.5} />
+                            <span style={{ fontSize: 13, color: 'var(--muted)' }}>{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <p style={{ color: 'var(--teal)', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: 17 }}>
+                      {formatRegionPrice(getUpsellPrice(s.price, region), region)}{' '}
+                      <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: 12 }}>/ one-time</span>
+                    </p>
+                  </div>
+                </RevealCard>
+              ))}
+            </div>
+
+            <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 13, marginTop: 22 }}>
+              Add any of these services to your order — final total updates automatically.
+            </p>
+          </>
+        )}
       </section>
     </main>
   )

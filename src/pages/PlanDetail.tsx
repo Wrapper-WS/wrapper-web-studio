@@ -3,12 +3,12 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Check, Star, AlertCircle, Tag, X } from 'lucide-react'
 import { getPlan } from '../lib/plans'
 import { useRegion } from '../lib/useRegion'
-import { formatRegionPrice } from '../lib/region'
+import { formatRegionPrice, getUpsellPrice } from '../lib/region'
 import { supabase } from '../lib/supabase'
 import type { Upsell } from '../lib/supabase'
 
-// Plans that support promo codes
-const PROMO_ELIGIBLE = ['business', 'pro', 'custom']
+// Plans that support promo codes (custom has no fixed price, so no promo)
+const PROMO_ELIGIBLE = ['business', 'pro']
 
 
 function RevealCard({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
@@ -60,10 +60,11 @@ export default function PlanDetail() {
     )
   }
 
+  const isCustom = plan.id === 'custom'
   const promoEligible = PROMO_ELIGIBLE.includes(plan.id)
   const discountAmount = appliedPromo ? Math.round((planPrice * appliedPromo.discount) / 100) : 0
   const discountedPrice = planPrice - discountAmount
-  const addOnsTotal = selectedAddOns.reduce((sum, a) => sum + a.price, 0)
+  const addOnsTotal = selectedAddOns.reduce((sum, a) => sum + getUpsellPrice(a.price, region), 0)
   const total = discountedPrice + addOnsTotal
 
   const applyPromo = async () => {
@@ -103,10 +104,11 @@ export default function PlanDetail() {
   }
 
   const handleOrder = () => {
+    if (isCustom) { navigate('/custom-inquiry'); return }
     sessionStorage.setItem('order_plan', JSON.stringify({
       planId: plan.id, promoCode: appliedPromo?.code ?? null,
       planPrice, discountAmount, discountedPrice, currency: region.currency, countryCode: region.countryCode,
-      addOns: selectedAddOns.map((a) => ({ id: a.id, name: a.name, price: a.price })),
+      addOns: selectedAddOns.map((a) => ({ id: a.id, name: a.name, price: getUpsellPrice(a.price, region) })),
       total,
     }))
     navigate(`/order/${plan.id}`)
@@ -146,7 +148,22 @@ export default function PlanDetail() {
 
             {/* Price */}
             <div style={{ marginBottom: 18 }}>
-              {appliedPromo ? (
+              {isCustom ? (
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  background: 'linear-gradient(135deg, rgba(0,212,184,0.1), rgba(155,93,229,0.1))',
+                  border: '1px solid rgba(0,212,184,0.3)', borderRadius: 999,
+                  padding: '8px 18px',
+                }}>
+                  <span style={{
+                    width: 7, height: 7, borderRadius: '50%', background: 'var(--teal)',
+                    display: 'inline-block', boxShadow: '0 0 8px var(--teal)',
+                  }} />
+                  <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--teal)' }}>
+                    Let's discuss your pricing
+                  </span>
+                </div>
+              ) : appliedPromo ? (
                 <div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
                     <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 38, fontWeight: 700, color: 'var(--teal)' }}>{formatRegionPrice(discountedPrice, region)}</span>
@@ -169,8 +186,8 @@ export default function PlanDetail() {
 
             <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.6, marginBottom: 22 }}>{plan.description}</p>
 
-            {/* Promo code - only for eligible plans */}
-            {promoEligible && (
+            {/* Promo code - only for eligible plans, never for custom */}
+            {promoEligible && !isCustom && (
               !appliedPromo ? (
                 <div style={{ marginBottom: 0 }}>
                   <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', fontFamily: 'Space Grotesk, sans-serif', marginBottom: 8 }}>
@@ -250,8 +267,8 @@ export default function PlanDetail() {
 
 
 
-        {/* Upsells */}
-        {upsells.length > 0 && (
+        {/* Upsells - not applicable to custom inquiries */}
+        {!isCustom && upsells.length > 0 && (
           <RevealCard delay={300}>
             <div>
               <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--muted)', fontFamily: 'Space Grotesk, sans-serif', marginBottom: 14 }}>SUGGESTED SERVICES</p>
@@ -271,7 +288,7 @@ export default function PlanDetail() {
                       <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 10 }}>Pay once — added to your order total.</p>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ color: 'var(--teal)', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: 17 }}>
-                          {formatRegionPrice(upsell.price, region)}<span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: 12 }}> / one-time</span>
+                          {formatRegionPrice(getUpsellPrice(upsell.price, region), region)}<span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: 12 }}> / one-time</span>
                         </span>
                         <button onClick={() => toggleAddOn(upsell)} style={{ background: selected ? 'var(--teal)' : 'var(--surface)', border: `1px solid ${selected ? 'var(--teal)' : 'var(--border-strong)'}`, color: selected ? '#0a0d14' : 'var(--text)', borderRadius: 8, padding: '6px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'Space Grotesk, sans-serif', transition: 'all 0.2s ease' }}>
                           {selected ? '✓ Added' : '+ Add'}
@@ -292,37 +309,62 @@ export default function PlanDetail() {
           </RevealCard>
         )}
 
-        {/* Single Place Order CTA — always at the very bottom */}
+        {/* Single Place Order / Discuss CTA — always at the very bottom */}
         <RevealCard delay={100}>
           <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
-              <div>
-                <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--muted)', fontFamily: 'Space Grotesk, sans-serif', marginBottom: 3 }}>READY TO START?</p>
-                <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 18, fontWeight: 700 }}>
-                  {plan.name} — {formatRegionPrice(appliedPromo ? discountedPrice : planPrice, region)}
-                  {selectedAddOns.length > 0 && (
-                    <span style={{ color: 'var(--teal)', fontSize: 14, fontWeight: 600, marginLeft: 8 }}>
-                      + {formatRegionPrice(selectedAddOns.reduce((s, a) => s + a.price, 0), region)} add-ons
-                    </span>
-                  )}
+            {isCustom ? (
+              <>
+                <div style={{ marginBottom: 16 }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--muted)', fontFamily: 'Space Grotesk, sans-serif', marginBottom: 3 }}>READY TO SCOPE YOUR PROJECT?</p>
+                  <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 18, fontWeight: 700 }}>
+                    Tell us what you need — we'll quote it fairly.
+                  </p>
+                </div>
+                <button
+                  onClick={handleOrder}
+                  className="btn-primary"
+                  style={{ width: '100%', justifyContent: 'center', fontSize: 16, padding: '15px', transition: 'transform 0.2s ease, box-shadow 0.2s ease' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(240,240,245,0.15)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none' }}
+                >
+                  Discuss Your Project →
+                </button>
+                <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 12, marginTop: 10 }}>
+                  Quick form — describe your project and how to reach you. No commitment.
                 </p>
-              </div>
-              <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 22, fontWeight: 700, color: 'var(--teal)' }}>
-                {formatRegionPrice(total, region)}
-              </p>
-            </div>
-            <button
-              onClick={handleOrder}
-              className="btn-primary"
-              style={{ width: '100%', justifyContent: 'center', fontSize: 16, padding: '15px', transition: 'transform 0.2s ease, box-shadow 0.2s ease' }}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(240,240,245,0.15)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none' }}
-            >
-              Place Order →
-            </button>
-            <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 12, marginTop: 10 }}>
-              Continue to a quick order form for the {plan.name} plan.
-            </p>
+              </>
+            ) : (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+                  <div>
+                    <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--muted)', fontFamily: 'Space Grotesk, sans-serif', marginBottom: 3 }}>READY TO START?</p>
+                    <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 18, fontWeight: 700 }}>
+                      {plan.name} — {formatRegionPrice(appliedPromo ? discountedPrice : planPrice, region)}
+                      {selectedAddOns.length > 0 && (
+                        <span style={{ color: 'var(--teal)', fontSize: 14, fontWeight: 600, marginLeft: 8 }}>
+                          + {formatRegionPrice(selectedAddOns.reduce((s, a) => s + getUpsellPrice(a.price, region), 0), region)} add-ons
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <p style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 22, fontWeight: 700, color: 'var(--teal)' }}>
+                    {formatRegionPrice(total, region)}
+                  </p>
+                </div>
+                <button
+                  onClick={handleOrder}
+                  className="btn-primary"
+                  style={{ width: '100%', justifyContent: 'center', fontSize: 16, padding: '15px', transition: 'transform 0.2s ease, box-shadow 0.2s ease' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(240,240,245,0.15)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none' }}
+                >
+                  Place Order →
+                </button>
+                <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 12, marginTop: 10 }}>
+                  Continue to a quick order form for the {plan.name} plan.
+                </p>
+              </>
+            )}
           </div>
         </RevealCard>
 

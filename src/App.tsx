@@ -10,6 +10,7 @@ import HowItWorks from './pages/HowItWorks'
 import Contact from './pages/Contact'
 import PlanDetail from './pages/PlanDetail'
 import OrderForm from './pages/OrderForm'
+import CustomInquiry from './pages/CustomInquiry'
 import Privacy from './pages/Privacy'
 import Cookies from './pages/Cookies'
 import Terms from './pages/Terms'
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/plans/:planId" element={<PlanDetail />} />
           <Route path="/order/:planId" element={<OrderForm />} />
+          <Route path="/custom-inquiry" element={<CustomInquiry />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/cookies" element={<Cookies />} />
           <Route path="/terms" element={<Terms />} />

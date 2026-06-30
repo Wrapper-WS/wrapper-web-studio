@@ -137,3 +137,26 @@ export function formatRegionPrice(amount: number, region: Region): string {
 
 export { DEFAULT_REGION }
 export type { Region as RegionType }
+
+// Convert any NGN-based price (e.g. an upsell set by admin) into the
+// visitor's regional currency, using the same proportional scale as
+// the Business plan. This lets admins set ONE base price (in NGN) and
+// have it auto-scale correctly everywhere, instead of every upsell
+// just swapping the currency symbol onto the raw NGN number.
+const NGN_BUSINESS_BASELINE = 150000
+
+function niceRound(value: number, currency: Currency): number {
+  if (currency === 'NGN') return Math.round(value / 500) * 500
+  if (currency === 'KES') return Math.round(value / 100) * 100
+  if (currency === 'GHS') return Math.round(value / 5) * 5
+  if (currency === 'ZAR') return Math.round(value / 10) * 10
+  // USD
+  return value >= 50 ? Math.round(value / 5) * 5 : Math.max(1, Math.round(value))
+}
+
+export function getUpsellPrice(ngnBasePrice: number, region: Region): number {
+  if (region.currency === 'NGN') return ngnBasePrice
+  const ratio = region.prices.business / NGN_BUSINESS_BASELINE
+  const raw = ngnBasePrice * ratio
+  return niceRound(raw, region.currency)
+}

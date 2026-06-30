@@ -9,6 +9,7 @@ export type Plan = {
   description: string
   whatToExpect: string[]
   domainNote?: string
+  customPricing?: boolean
 }
 
 export const plans: Plan[] = [
@@ -89,20 +90,22 @@ export const plans: Plan[] = [
   {
     id: 'custom',
     name: 'Custom Website',
-    tagline: 'A fully tailored website built around your brand.',
-    price: 150000,
+    tagline: 'Built around exactly what you need — no template, no limits.',
+    price: 0,
+    customPricing: true,
     features: [
       'Custom design from scratch',
       'Tailored page structure',
       'Brand-led visuals & motion',
       'Built for your specific goals',
     ],
-    description: 'A completely bespoke website built to your vision and brand identity.',
+    description: 'For organizations that need more than a store — schools, hospitals, clinics, NGOs, churches, real estate firms, agencies, and enterprises with unique workflows, booking systems, dashboards, or large catalogs. If your project needs real infrastructure planning, this is where we scope it properly and price it fairly.',
     whatToExpect: [
-      'Deep discovery session to understand your brand',
+      'Deep discovery session to understand your brand and operations',
       'Custom visual identity and layout design',
+      'Infrastructure scoped to your actual needs (booking systems, dashboards, portals, large catalogs, and more)',
       'Hand-crafted animations and interactions',
-      'Timeline discussed based on scope',
+      'A transparent quote after we understand your scope — timeline discussed based on what you need',
     ],
   },
 ]
