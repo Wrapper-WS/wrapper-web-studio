@@ -126,7 +126,7 @@ export default function PlanDetail() {
 
         {/* Plan hero card */}
         <RevealCard>
-          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 20, padding: '26px 22px', marginBottom: 14 }}>
+          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 20, padding: '26px 22px', marginBottom: 32 }}>
             {/* Badges row - properly aligned */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 18 }}>
               <span className="tag">✦ PLAN</span>
@@ -226,8 +226,8 @@ export default function PlanDetail() {
 
         {/* What's included */}
         <RevealCard delay={150}>
-          <div style={{ marginBottom: 24 }}>
-            <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 19, fontWeight: 700, marginBottom: 14 }}>What's included</h2>
+          <div style={{ marginBottom: 36 }}>
+            <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 19, fontWeight: 700, marginBottom: 16 }}>What's included</h2>
             {plan.domainNote && (
               <div style={{ background: 'rgba(255,200,50,0.06)', border: '1px solid rgba(255,200,50,0.2)', borderRadius: 14, padding: '16px', marginBottom: 14 }}>
                 <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', color: '#f5c842', fontFamily: 'Space Grotesk, sans-serif', marginBottom: 6 }}>⚠ IMPORTANT DOMAIN INFORMATION</p>
@@ -252,8 +252,8 @@ export default function PlanDetail() {
 
         {/* What to expect */}
         <RevealCard delay={200}>
-          <div style={{ marginBottom: 24 }}>
-            <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 19, fontWeight: 700, marginBottom: 14 }}>What to expect</h2>
+          <div style={{ marginBottom: 36 }}>
+            <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 19, fontWeight: 700, marginBottom: 16 }}>What to expect</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
               {plan.whatToExpect.map((item) => (
                 <div key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>

@@ -2,19 +2,25 @@
 
 @layer base {
   :root {
-    --bg: #0a0d14;
-    --surface: rgba(255, 255, 255, 0.04);
-    --surface-hover: rgba(255, 255, 255, 0.07);
-    --border: rgba(255, 255, 255, 0.08);
-    --border-strong: rgba(255, 255, 255, 0.14);
-    --glass: rgba(15, 18, 28, 0.75);
-    --glass-strong: rgba(15, 18, 28, 0.92);
-    --text: #f0f0f5;
-    --muted: #8b8fa8;
-    --teal: #00d4b8;
-    --purple: #9b5de5;
-    --teal-dim: rgba(0, 212, 184, 0.15);
-    --purple-dim: rgba(155, 93, 229, 0.15);
+    /* Base surface — slightly lifted off pure black, warmer undertone */
+    --bg: #0b0e16;
+    --bg-elevated: #10141f;
+    --surface: rgba(255, 255, 255, 0.045);
+    --surface-hover: rgba(255, 255, 255, 0.075);
+    --border: rgba(255, 255, 255, 0.09);
+    --border-strong: rgba(255, 255, 255, 0.16);
+    --glass: rgba(16, 20, 31, 0.78);
+    --glass-strong: rgba(16, 20, 31, 0.93);
+    --text: #f4f4f8;
+    --muted: #979bb5;
+    --teal: #00d9bc;
+    --purple: #a568ea;
+    --teal-dim: rgba(0, 217, 188, 0.15);
+    --purple-dim: rgba(165, 104, 234, 0.15);
+
+    /* Motion — Emil Kowalski curves: strong, deliberate, never ease-in on UI */
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   }
 
   * {
@@ -29,6 +35,12 @@
 
   body {
     background-color: var(--bg);
+    /* Layered soft glows for depth instead of a flat black field */
+    background-image:
+      radial-gradient(ellipse 900px 600px at 15% -10%, rgba(0, 217, 188, 0.05), transparent 60%),
+      radial-gradient(ellipse 800px 500px at 100% 10%, rgba(165, 104, 234, 0.045), transparent 55%),
+      radial-gradient(ellipse 700px 900px at 50% 100%, rgba(0, 217, 188, 0.03), transparent 60%);
+    background-attachment: fixed;
     color: var(--text);
     font-family: 'Inter', sans-serif;
     font-size: 16px;
@@ -52,7 +64,7 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
-    transition: all 0.3s ease;
+    transition: background-color 220ms var(--ease-out), border-color 220ms var(--ease-out), transform 220ms var(--ease-out), box-shadow 220ms var(--ease-out);
   }
 
   .glass-card:hover {
@@ -83,8 +95,8 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background: #f0f0f5;
-    color: #0a0d14;
+    background: #f4f4f8;
+    color: #0b0e16;
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 600;
     font-size: 14px;
@@ -92,13 +104,17 @@
     border-radius: 999px;
     border: none;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform 160ms var(--ease-out), background-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
     text-decoration: none;
   }
 
   .btn-primary:hover {
     transform: scale(1.03);
     background: #ffffff;
+  }
+
+  .btn-primary:active {
+    transform: scale(0.97);
   }
 
   /* Ghost button */
@@ -116,13 +132,17 @@
     border-radius: 999px;
     border: 1px solid var(--border-strong);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 160ms var(--ease-out), border-color 160ms var(--ease-out), transform 160ms var(--ease-out);
     text-decoration: none;
   }
 
   .btn-ghost:hover {
     background: var(--surface-hover);
     border-color: var(--muted);
+  }
+
+  .btn-ghost:active {
+    transform: scale(0.97);
   }
 
   /* Teal button */
@@ -132,7 +152,7 @@
     justify-content: center;
     gap: 8px;
     background: var(--teal);
-    color: #0a0d14;
+    color: #0b0e16;
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
     font-size: 14px;
@@ -140,13 +160,17 @@
     border-radius: 999px;
     border: none;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform 160ms var(--ease-out), opacity 160ms var(--ease-out);
     text-decoration: none;
   }
 
   .btn-teal:hover {
     transform: scale(1.03);
     opacity: 0.9;
+  }
+
+  .btn-teal:active {
+    transform: scale(0.97);
   }
 
   /* Section container */
@@ -156,11 +180,11 @@
     padding: 0 16px;
   }
 
-  /* Fade up animation */
+  /* Fade up animation — entrance uses ease-out per motion guidance */
   .fade-up {
     opacity: 0;
-    transform: translateY(24px);
-    animation: fadeUp 0.6s ease forwards;
+    transform: translateY(20px);
+    animation: fadeUp 500ms var(--ease-out) forwards;
   }
 
   @keyframes fadeUp {
@@ -171,11 +195,11 @@
   }
 
   /* Stagger delays */
-  .delay-100 { animation-delay: 0.1s; }
-  .delay-200 { animation-delay: 0.2s; }
-  .delay-300 { animation-delay: 0.3s; }
-  .delay-400 { animation-delay: 0.4s; }
-  .delay-500 { animation-delay: 0.5s; }
+  .delay-100 { animation-delay: 0.08s; }
+  .delay-200 { animation-delay: 0.16s; }
+  .delay-300 { animation-delay: 0.24s; }
+  .delay-400 { animation-delay: 0.32s; }
+  .delay-500 { animation-delay: 0.4s; }
 
   /* Tag/pill label */
   .tag {
@@ -197,7 +221,7 @@
   /* Input field */
   .field-input {
     width: 100%;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.055);
     border: 1px solid var(--border-strong);
     border-radius: 12px;
     padding: 12px 16px;
@@ -205,11 +229,12 @@
     font-family: 'Inter', sans-serif;
     font-size: 15px;
     outline: none;
-    transition: border-color 0.2s ease;
+    transition: border-color 160ms var(--ease-out), background-color 160ms var(--ease-out);
   }
 
   .field-input:focus {
     border-color: var(--teal);
+    background: rgba(255, 255, 255, 0.07);
   }
 
   .field-input::placeholder {
@@ -217,7 +242,7 @@
   }
 
   .field-input option {
-    background: #1a1d2e;
+    background: #151827;
     color: var(--text);
   }
 

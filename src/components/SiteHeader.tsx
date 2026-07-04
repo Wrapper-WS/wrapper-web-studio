@@ -15,18 +15,18 @@ export function SiteHeader() {
   const location = useLocation()
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16)
+    const onScroll = () => {
+      setScrolled(window.scrollY > 16)
+      // Closing on scroll lets the menu dismiss naturally instead of
+      // trapping the user behind a locked screen.
+      setOpen((wasOpen) => (wasOpen ? false : wasOpen))
+    }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   useEffect(() => { setOpen(false) }, [location.pathname])
-
-  useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
-  }, [open])
 
   const isActive = (to: string) => {
     if (to === '/') return location.pathname === '/'
@@ -123,46 +123,54 @@ export function SiteHeader() {
         </button>
       </div>
 
-      {/* Mobile dropdown */}
+      {/* Mobile dropdown + backdrop to close on outside tap */}
       {open && (
-        <div style={{
-          maxWidth: 1100, margin: '8px auto 0',
-          background: 'rgba(15,18,28,0.97)',
-          backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
-          border: '1px solid var(--border-strong)', borderRadius: 20,
-          padding: '8px', display: 'flex', flexDirection: 'column', gap: 2,
-          animation: 'fadeDown 0.2s ease',
-        }}>
-          {/* Nav links */}
-          {navLinks.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              style={{
-                padding: '14px 16px', borderRadius: 12, fontSize: 15, fontWeight: 500,
-                textDecoration: 'none',
-                color: isActive(link.to) ? 'var(--text)' : 'var(--muted)',
-                background: isActive(link.to) ? 'rgba(255,255,255,0.06)' : 'transparent',
-                transition: 'all 0.2s ease', fontFamily: 'Inter, sans-serif',
-              }}
-            >
-              {link.label}
-            </Link>
-          ))}
-
-          {/* Region picker at the bottom of mobile menu */}
+        <>
+          <div
+            onClick={() => setOpen(false)}
+            style={{ position: 'fixed', inset: 0, top: 70, zIndex: 90 }}
+          />
           <div style={{
-            marginTop: 4,
-            padding: '10px 16px 6px',
-            borderTop: '1px solid var(--border)',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            position: 'relative', zIndex: 91,
+            maxWidth: 1100, margin: '8px auto 0',
+            background: 'rgba(16,20,31,0.97)',
+            backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+            border: '1px solid var(--border-strong)', borderRadius: 20,
+            padding: '8px', display: 'flex', flexDirection: 'column', gap: 2,
+            animation: 'fadeDown 200ms var(--ease-out)',
           }}>
-            <span style={{ fontSize: 12, color: 'var(--muted)', fontFamily: 'Inter, sans-serif' }}>
-              Region & Currency
-            </span>
-            <RegionBadge />
+            {/* Nav links */}
+            {navLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                style={{
+                  padding: '14px 16px', borderRadius: 12, fontSize: 15, fontWeight: 500,
+                  textDecoration: 'none',
+                  color: isActive(link.to) ? 'var(--text)' : 'var(--muted)',
+                  background: isActive(link.to) ? 'rgba(255,255,255,0.06)' : 'transparent',
+                  transition: 'background-color 160ms var(--ease-out), color 160ms var(--ease-out)',
+                  fontFamily: 'Inter, sans-serif',
+                }}
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            {/* Region picker at the bottom of mobile menu */}
+            <div style={{
+              marginTop: 4,
+              padding: '10px 16px 6px',
+              borderTop: '1px solid var(--border)',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
+              <span style={{ fontSize: 12, color: 'var(--muted)', fontFamily: 'Inter, sans-serif' }}>
+                Region & Currency
+              </span>
+              <RegionBadge />
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       <style>{`

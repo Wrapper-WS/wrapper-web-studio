@@ -20,9 +20,19 @@ function AdminLogin({ onLogin }: { onLogin: () => void }) {
   const login = async () => {
     setLoading(true)
     setError('')
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) setError(error.message)
-    else onLogin()
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) { setError(error.message); setLoading(false); return }
+
+    const signedInEmail = data.user?.email ?? email
+    const { data: adminRow } = await supabase.from('admin_roles').select('id').eq('email', signedInEmail).maybeSingle()
+    if (!adminRow) {
+      setError('This account does not have admin access. Contact an existing admin to be authorized.')
+      await supabase.auth.signOut()
+      setLoading(false)
+      return
+    }
+
+    onLogin()
     setLoading(false)
   }
 
@@ -504,52 +514,95 @@ function Admins() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
+  const [admins, setAdmins] = useState<{ id: string; email: string }[]>([])
+
+  const loadAdmins = async () => {
+    const { data } = await supabase.from('admin_roles').select('id, email').order('granted_at', { ascending: false })
+    if (data) setAdmins(data)
+  }
+
+  useEffect(() => { loadAdmins() }, [])
 
   const grant = async () => {
     if (!email.trim()) return
     setLoading(true)
     setError('')
     setSuccess('')
-    const { data: user } = await supabase.from('admin_roles').select('email').eq('email', email.trim()).single()
-    if (user) { setError('This email already has admin access.'); setLoading(false); return }
-
-    const { data: authUser } = await supabase.auth.admin?.listUsers?.() ?? { data: null }
-    if (!authUser) {
-      setError('Could not verify user. Make sure they have signed up first.')
-      setLoading(false)
-      return
-    }
+    const { data: existing } = await supabase.from('admin_roles').select('email').eq('email', email.trim()).maybeSingle()
+    if (existing) { setError('This email already has admin access.'); setLoading(false); return }
 
     const { error } = await supabase.from('admin_roles').insert({ email: email.trim() })
     if (error) setError(error.message)
-    else { setSuccess(`Access granted to ${email}`); setEmail('') }
+    else { setSuccess(`${email} can now sign in once their account is set up.`); setEmail(''); loadAdmins() }
     setLoading(false)
   }
 
+  const revoke = async (id: string, targetEmail: string) => {
+    if (!confirm(`Remove admin access for ${targetEmail}?`)) return
+    await supabase.from('admin_roles').delete().eq('id', id)
+    loadAdmins()
+  }
+
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* How it works */}
+      <div className="glass-card" style={{ padding: '20px', background: 'rgba(0,212,184,0.04)', borderColor: 'rgba(0,212,184,0.15)' }}>
+        <h3 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 14, fontWeight: 700, marginBottom: 10, color: 'var(--teal)' }}>How to add a new admin (2 steps)</h3>
+        <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+          <span style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--teal-dim)', color: 'var(--teal)', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontFamily: 'Space Grotesk, sans-serif' }}>1</span>
+          <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>
+            In your <strong style={{ color: 'var(--text)' }}>Supabase dashboard</strong> → Authentication → Users → <strong style={{ color: 'var(--text)' }}>Invite user</strong>. Enter their email — they'll get an email to set their own password.
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <span style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--teal-dim)', color: 'var(--teal)', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontFamily: 'Space Grotesk, sans-serif' }}>2</span>
+          <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>
+            Add their email below to authorize dashboard access. Once they set their password and log in with that email, they're in.
+          </p>
+        </div>
+      </div>
+
+      {/* Authorize form */}
       <div className="glass-card" style={{ padding: '24px 20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
           <div style={{ width: 32, height: 32, borderRadius: 10, background: 'var(--surface)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Users size={15} color="var(--muted)" />
           </div>
-          <h3 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 17, fontWeight: 700 }}>Authorize admin</h3>
+          <h3 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 17, fontWeight: 700 }}>Authorize admin email</h3>
         </div>
-        <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 20 }}>Grant dashboard access to an existing account.</p>
+        <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 20 }}>Must match the email invited in Supabase (step 1 above).</p>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && grant()}
           className="field-input"
-          placeholder="admin@example.com"
+          placeholder="newadmin@example.com"
           style={{ marginBottom: 12 }}
         />
         {error && <p style={{ color: '#ff6b6b', fontSize: 13, marginBottom: 10 }}>{error}</p>}
         {success && <p style={{ color: 'var(--teal)', fontSize: 13, marginBottom: 10 }}>{success}</p>}
         <button onClick={grant} disabled={loading} className="btn-primary" style={{ width: '100%' }}>
-          <Users size={14} /> {loading ? 'Granting...' : 'Grant access'}
+          <Users size={14} /> {loading ? 'Authorizing...' : 'Authorize email'}
         </button>
       </div>
+
+      {/* Current admins list */}
+      {admins.length > 0 && (
+        <div className="glass-card" style={{ padding: '20px' }}>
+          <h3 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 14, fontWeight: 700, marginBottom: 14 }}>Authorized admins</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {admins.map((a) => (
+              <div key={a.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: 'var(--surface)', borderRadius: 10, border: '1px solid var(--border)' }}>
+                <span style={{ fontSize: 13, color: 'var(--text)' }}>{a.email}</span>
+                <button onClick={() => revoke(a.id, a.email)} style={{ background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.2)', color: '#ff6b6b', borderRadius: 8, padding: '4px 10px', cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: 'Space Grotesk, sans-serif' }}>
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -564,13 +617,13 @@ export default function Admin() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) checkAdmin(data.session.user.id)
+      if (data.session?.user?.email) checkAdmin(data.session.user.email)
       else setChecking(false)
     })
   }, [])
 
-  const checkAdmin = async (userId: string) => {
-    const { data } = await supabase.from('admin_roles').select('id').eq('user_id', userId).single()
+  const checkAdmin = async (email: string) => {
+    const { data } = await supabase.from('admin_roles').select('id').eq('email', email).maybeSingle()
     setAuthed(!!data)
     setChecking(false)
     if (data) loadData()
