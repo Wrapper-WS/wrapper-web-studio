@@ -23,8 +23,8 @@ function AdminLogin({ onLogin }: { onLogin: () => void }) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) { setError(error.message); setLoading(false); return }
 
-    const signedInEmail = data.user?.email ?? email
-    const { data: adminRow } = await supabase.from('admin_roles').select('id').eq('email', signedInEmail).maybeSingle()
+    const signedInEmail = (data.user?.email ?? email).trim().toLowerCase()
+    const { data: adminRow } = await supabase.from('admin_roles').select('id').ilike('email', signedInEmail).maybeSingle()
     if (!adminRow) {
       setError('This account does not have admin access. Contact an existing admin to be authorized.')
       await supabase.auth.signOut()
@@ -528,10 +528,10 @@ function Admins() {
     setLoading(true)
     setError('')
     setSuccess('')
-    const { data: existing } = await supabase.from('admin_roles').select('email').eq('email', email.trim()).maybeSingle()
+    const { data: existing } = await supabase.from('admin_roles').select('email').ilike('email', email.trim()).maybeSingle()
     if (existing) { setError('This email already has admin access.'); setLoading(false); return }
 
-    const { error } = await supabase.from('admin_roles').insert({ email: email.trim() })
+    const { error } = await supabase.from('admin_roles').insert({ email: email.trim().toLowerCase() })
     if (error) setError(error.message)
     else { setSuccess(`${email} can now sign in once their account is set up.`); setEmail(''); loadAdmins() }
     setLoading(false)
@@ -623,7 +623,7 @@ export default function Admin() {
   }, [])
 
   const checkAdmin = async (email: string) => {
-    const { data } = await supabase.from('admin_roles').select('id').eq('email', email).maybeSingle()
+    const { data } = await supabase.from('admin_roles').select('id').ilike('email', email.trim()).maybeSingle()
     setAuthed(!!data)
     setChecking(false)
     if (data) loadData()

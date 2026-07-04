@@ -4,6 +4,7 @@ import { SiteFooter } from './components/SiteFooter'
 import { CookieBanner } from './components/CookieBanner'
 import { ScrollToTop } from './components/ScrollToTop'
 import { RegionProvider } from './components/RegionProvider'
+import { UpdateChecker } from './components/UpdateChecker'
 import Home from './pages/Home'
 import Pricing from './pages/Pricing'
 import HowItWorks from './pages/HowItWorks'
@@ -11,6 +12,7 @@ import Contact from './pages/Contact'
 import PlanDetail from './pages/PlanDetail'
 import OrderForm from './pages/OrderForm'
 import CustomInquiry from './pages/CustomInquiry'
+import ServiceInquiry from './pages/ServiceInquiry'
 import Privacy from './pages/Privacy'
 import Cookies from './pages/Cookies'
 import Terms from './pages/Terms'
@@ -30,6 +32,7 @@ export default function App() {
           <Route path="/plans/:planId" element={<PlanDetail />} />
           <Route path="/order/:planId" element={<OrderForm />} />
           <Route path="/custom-inquiry" element={<CustomInquiry />} />
+          <Route path="/service-inquiry/:serviceId" element={<ServiceInquiry />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/cookies" element={<Cookies />} />
           <Route path="/terms" element={<Terms />} />
@@ -37,6 +40,7 @@ export default function App() {
         </Routes>
         <SiteFooter />
         <CookieBanner />
+        <UpdateChecker />
       </BrowserRouter>
     </RegionProvider>
   )

@@ -40,7 +40,7 @@ function RevealCard({ children, delay = 0, style = {} }: { children: React.React
 
 export default function Home() {
   return (
-    <main style={{ paddingTop: 72 }}>
+    <main style={{ paddingTop: 96 }}>
 
       {/* Hero */}
       <section
@@ -49,7 +49,7 @@ export default function Home() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '44px 16px 56px',
+          padding: '24px 16px 56px',
           textAlign: 'center',
           position: 'relative',
           overflow: 'hidden',
@@ -68,7 +68,7 @@ export default function Home() {
           <div style={{ marginBottom: 22 }}>
             <span className="tag">
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--teal)', display: 'inline-block', boxShadow: '0 0 8px var(--teal)' }} />
-              Now booking July launches
+              Now booking new projects
             </span>
           </div>
 
