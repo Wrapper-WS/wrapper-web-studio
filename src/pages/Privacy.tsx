@@ -50,8 +50,7 @@ export default function Privacy() {
                     <li style={{ marginBottom: 6 }}>Billing addresses</li>
                     <li>Contact preferences</li>
                   </ul>
-                  <p style={{ marginBottom: 12 }}><strong style={{ color: 'var(--text)' }}>Sensitive Information.</strong> We do not process sensitive information.</p>
-                  <p><strong style={{ color: 'var(--text)' }}>Payment Data.</strong> We may collect data necessary to process your payment if you choose to make purchases. All payment data is handled and stored by Flutterwave. You may find their privacy notice at <a href="https://dispute.flutterwave.com/privacy" style={{ color: 'var(--teal)' }}>https://dispute.flutterwave.com/privacy</a>.</p>
+                  <p><strong style={{ color: 'var(--text)' }}>Sensitive Information.</strong> We do not process sensitive information.</p>
                 </>
               ),
             },

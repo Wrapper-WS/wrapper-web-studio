@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom'
 import { Check, Sparkles, ArrowRight } from 'lucide-react'
 import { plans } from '../lib/plans'
 import { useRegion } from '../lib/useRegion'
-import { formatRegionPrice, getUpsellPrice } from '../lib/region'
+import { formatRegionPrice, getServicePrice } from '../lib/region'
 import { supabase } from '../lib/supabase'
 import type { Upsell } from '../lib/supabase'
+import { TierComparisonTable } from '../components/TierComparisonTable'
+import { usePageMeta } from '../lib/usePageMeta'
 
 function RevealCard({ children, delay = 0, style = {} }: { children: React.ReactNode; delay?: number; style?: React.CSSProperties }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -55,11 +57,12 @@ const checkColors: Record<string, string> = {
 }
 
 export default function Pricing() {
+  usePageMeta('Pricing', 'Transparent pricing for African businesses — Starter, Entry, Business, and Pro tiers, priced in your local currency.')
   const { region } = useRegion()
   const [upsells, setUpsells] = useState<Upsell[]>([])
 
   useEffect(() => {
-    supabase.from('upsells').select('*').eq('active', true).order('created_at', { ascending: true }).then(({ data }) => {
+    supabase.from('upsells').select('*').eq('active', true).in('category', ['standalone', 'both']).order('created_at', { ascending: true }).then(({ data }) => {
       if (data) setUpsells(data)
     })
   }, [])
@@ -197,6 +200,21 @@ export default function Pricing() {
         </p>
       </section>
 
+      {/* Tier comparison table */}
+      <section style={{ padding: '0 16px 64px', maxWidth: 800, margin: '0 auto' }}>
+        <RevealCard>
+          <div style={{ textAlign: 'center', marginBottom: 24 }}>
+            <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 8 }}>
+              Compare every tier
+            </h2>
+            <p style={{ color: 'var(--muted)', fontSize: 13 }}>Exactly what you get, side by side.</p>
+          </div>
+          <div className="glass-card" style={{ padding: 4 }}>
+            <TierComparisonTable />
+          </div>
+        </RevealCard>
+      </section>
+
       {/* Other services — click through to a quick inquiry, no website purchase required */}
       <section style={{ padding: '0 16px 100px', maxWidth: 800, margin: '0 auto' }}>
         <RevealCard style={{ textAlign: 'center', marginBottom: 36 }}>
@@ -245,8 +263,7 @@ export default function Pricing() {
                         </div>
                       )}
                       <p style={{ color: 'var(--teal)', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: 17 }}>
-                        {formatRegionPrice(getUpsellPrice(s.price, region), region)}{' '}
-                        <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: 12 }}>estimate</span>
+                        {formatRegionPrice(getServicePrice(s, region), region)}
                       </p>
                     </div>
                     <ArrowRight size={16} color="var(--muted)" style={{ flexShrink: 0, marginTop: 4 }} />

@@ -3,9 +3,10 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Check, Star, AlertCircle, Tag, X } from 'lucide-react'
 import { getPlan } from '../lib/plans'
 import { useRegion } from '../lib/useRegion'
-import { formatRegionPrice, getUpsellPrice } from '../lib/region'
+import { formatRegionPrice, getServicePrice } from '../lib/region'
 import { supabase } from '../lib/supabase'
 import type { Upsell } from '../lib/supabase'
+import { usePageMeta } from '../lib/usePageMeta'
 
 // Plans that support promo codes (custom has no fixed price, so no promo)
 const PROMO_ELIGIBLE = ['business', 'pro']
@@ -34,6 +35,7 @@ export default function PlanDetail() {
   const { planId } = useParams<{ planId: string }>()
   const navigate = useNavigate()
   const plan = getPlan(planId ?? '')
+  usePageMeta(plan ? plan.name : 'Plan', plan?.description)
 
   const { region } = useRegion()
   const planPrice = region.prices[plan?.id as keyof typeof region.prices] ?? plan?.price ?? 0
@@ -46,7 +48,7 @@ export default function PlanDetail() {
   const [selectedAddOns, setSelectedAddOns] = useState<Upsell[]>([])
 
   useEffect(() => {
-    supabase.from('upsells').select('*').eq('active', true).then(({ data }) => {
+    supabase.from('upsells').select('*').eq('active', true).in('category', ['addon', 'both']).then(({ data }) => {
       if (data) setUpsells(data)
     })
   }, [])
@@ -64,7 +66,7 @@ export default function PlanDetail() {
   const promoEligible = PROMO_ELIGIBLE.includes(plan.id)
   const discountAmount = appliedPromo ? Math.round((planPrice * appliedPromo.discount) / 100) : 0
   const discountedPrice = planPrice - discountAmount
-  const addOnsTotal = selectedAddOns.reduce((sum, a) => sum + getUpsellPrice(a.price, region), 0)
+  const addOnsTotal = selectedAddOns.reduce((sum, a) => sum + getServicePrice(a, region), 0)
   const total = discountedPrice + addOnsTotal
 
   const applyPromo = async () => {
@@ -108,7 +110,7 @@ export default function PlanDetail() {
     sessionStorage.setItem('order_plan', JSON.stringify({
       planId: plan.id, promoCode: appliedPromo?.code ?? null,
       planPrice, discountAmount, discountedPrice, currency: region.currency, countryCode: region.countryCode,
-      addOns: selectedAddOns.map((a) => ({ id: a.id, name: a.name, price: getUpsellPrice(a.price, region) })),
+      addOns: selectedAddOns.map((a) => ({ id: a.id, name: a.name, price: getServicePrice(a, region) })),
       total,
     }))
     navigate(`/order/${plan.id}`)
@@ -288,7 +290,7 @@ export default function PlanDetail() {
                       <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 10 }}>Pay once — added to your order total.</p>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ color: 'var(--teal)', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, fontSize: 17 }}>
-                          {formatRegionPrice(getUpsellPrice(upsell.price, region), region)}<span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: 12 }}> / one-time</span>
+                          {formatRegionPrice(getServicePrice(upsell, region), region)}<span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: 12 }}> / one-time</span>
                         </span>
                         <button onClick={() => toggleAddOn(upsell)} style={{ background: selected ? 'var(--teal)' : 'var(--surface)', border: `1px solid ${selected ? 'var(--teal)' : 'var(--border-strong)'}`, color: selected ? '#0a0d14' : 'var(--text)', borderRadius: 8, padding: '6px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'Space Grotesk, sans-serif', transition: 'all 0.2s ease' }}>
                           {selected ? '✓ Added' : '+ Add'}
@@ -342,7 +344,7 @@ export default function PlanDetail() {
                       {plan.name} — {formatRegionPrice(appliedPromo ? discountedPrice : planPrice, region)}
                       {selectedAddOns.length > 0 && (
                         <span style={{ color: 'var(--teal)', fontSize: 14, fontWeight: 600, marginLeft: 8 }}>
-                          + {formatRegionPrice(selectedAddOns.reduce((s, a) => s + getUpsellPrice(a.price, region), 0), region)} add-ons
+                          + {formatRegionPrice(selectedAddOns.reduce((s, a) => s + getServicePrice(a, region), 0), region)} add-ons
                         </span>
                       )}
                     </p>

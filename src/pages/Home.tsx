@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Zap, Smartphone, Globe, ArrowRight } from 'lucide-react'
+import { usePageMeta } from '../lib/usePageMeta'
 
 function RevealCard({ children, delay = 0, style = {} }: { children: React.ReactNode; delay?: number; style?: React.CSSProperties }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -39,6 +40,10 @@ function RevealCard({ children, delay = 0, style = {} }: { children: React.React
 }
 
 export default function Home() {
+  usePageMeta(
+    'Premium Websites for African Businesses',
+    'We design and ship premium websites for African businesses, brands, and institutions — physical stores, online shops, service providers, and beyond. Fast, mobile-first, built to compete globally.'
+  )
   return (
     <main style={{ paddingTop: 96 }}>
 
@@ -113,9 +118,9 @@ export default function Home() {
               maxWidth: 480,
               margin: '0 auto 28px',
             }}>
-              We design and ship premium websites for businesses and online vendors —
-              physical stores, online shops, and service providers. Fast, mobile-first,
-              built to convert.
+              Premium websites for African businesses, brands, and institutions —
+              online stores, business sites, and custom builds. Fast, mobile-first,
+              built to compete globally.
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 300, margin: '0 auto' }}>

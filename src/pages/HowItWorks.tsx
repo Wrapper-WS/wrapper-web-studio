@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { List, FileText, Lock, CreditCard, CheckCircle, ArrowRight } from 'lucide-react'
+import { usePageMeta } from '../lib/usePageMeta'
 
 const steps = [
   {
@@ -35,6 +36,7 @@ const steps = [
 ]
 
 export default function HowItWorks() {
+  usePageMeta('How It Works', 'Our 5-step process, from choosing a plan to your website going live.')
   return (
     <main style={{ paddingTop: 100 }}>
       {/* Hero */}

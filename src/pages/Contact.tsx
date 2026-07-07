@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom'
 import { MessageCircle, Mail } from 'lucide-react'
+import { usePageMeta } from '../lib/usePageMeta'
 
 const WHATSAPP_NUMBER = '2348159088811'
 const EMAIL = 'sp3techinitiative@gmail.com'
 
 export default function Contact() {
+  usePageMeta('Contact Us', 'Get in touch with Wrapper Web Studio on WhatsApp or email — we usually reply within an hour.')
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hello, I'm interested in getting a website from Wrapper Web Studio.")}`
 
   return (
