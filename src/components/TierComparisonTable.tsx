@@ -28,12 +28,12 @@ function Cell({ value }: { value: string | boolean }) {
 }
 
 export function TierComparisonTable() {
-  const columns = [
-    { key: 'starter', label: 'Starter', sub: '₦50k' },
-    { key: 'entry', label: 'Entry', sub: '₦80k' },
+  const columns: { key: Exclude<keyof Row, 'label'>; label: string; sub: string; highlight: boolean }[] = [
+    { key: 'starter', label: 'Starter', sub: '₦50k', highlight: false },
+    { key: 'entry', label: 'Entry', sub: '₦80k', highlight: false },
     { key: 'business', label: 'Business', sub: '₦150k', highlight: true },
-    { key: 'pro', label: 'Pro', sub: '₦250k' },
-  ] as const
+    { key: 'pro', label: 'Pro', sub: '₦250k', highlight: false },
+  ]
 
   return (
     <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
