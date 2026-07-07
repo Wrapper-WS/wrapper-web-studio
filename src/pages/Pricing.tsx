@@ -6,7 +6,6 @@ import { useRegion } from '../lib/useRegion'
 import { formatRegionPrice, getServicePrice } from '../lib/region'
 import { supabase } from '../lib/supabase'
 import type { Upsell } from '../lib/supabase'
-import { TierComparisonTable } from '../components/TierComparisonTable'
 import { usePageMeta } from '../lib/usePageMeta'
 
 function RevealCard({ children, delay = 0, style = {} }: { children: React.ReactNode; delay?: number; style?: React.CSSProperties }) {
@@ -198,21 +197,6 @@ export default function Pricing() {
         <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 13, marginTop: 22, lineHeight: 1.5 }}>
           All plans include responsive mobile-first design — built for businesses, online vendors, and service providers.
         </p>
-      </section>
-
-      {/* Tier comparison table */}
-      <section style={{ padding: '0 16px 64px', maxWidth: 800, margin: '0 auto' }}>
-        <RevealCard>
-          <div style={{ textAlign: 'center', marginBottom: 24 }}>
-            <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 8 }}>
-              Compare every tier
-            </h2>
-            <p style={{ color: 'var(--muted)', fontSize: 13 }}>Exactly what you get, side by side.</p>
-          </div>
-          <div className="glass-card" style={{ padding: 4 }}>
-            <TierComparisonTable />
-          </div>
-        </RevealCard>
       </section>
 
       {/* Other services — click through to a quick inquiry, no website purchase required */}

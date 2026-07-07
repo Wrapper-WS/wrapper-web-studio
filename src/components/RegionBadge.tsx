@@ -8,14 +8,16 @@ const MANUAL_OPTIONS = [
   { code: 'GH', label: 'Ghana (GH₵)' },
   { code: 'KE', label: 'Kenya (KSh)' },
   { code: 'ZA', label: 'South Africa (R)' },
-  { code: 'UG', label: 'Uganda ($)' },
-  { code: 'TZ', label: 'Tanzania ($)' },
-  { code: 'CM', label: 'Cameroon ($)' },
+  { code: 'UG', label: 'Uganda (UGX)' },
+  { code: 'TZ', label: 'Tanzania (TZS)' },
+  { code: 'CM', label: 'Cameroon (FCFA)' },
+  { code: 'RW', label: 'Rwanda (RWF)' },
+  { code: 'ET', label: 'Ethiopia (ETB)' },
   { code: 'US', label: 'United States ($)' },
   { code: 'GB', label: 'United Kingdom ($)' },
   { code: 'FR', label: 'France ($)' },
   { code: 'DE', label: 'Germany ($)' },
-  { code: 'XX', label: 'Other ($)' },
+  { code: 'XX', label: 'Rest of the world ($)' },
 ]
 
 export function RegionBadge() {
