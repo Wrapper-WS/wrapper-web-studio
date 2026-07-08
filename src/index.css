@@ -2,23 +2,28 @@
 
 @layer base {
   :root {
-    /* Base surface — slightly lifted off pure black, warmer undertone */
-    --bg: #0b0e16;
-    --bg-elevated: #10141f;
-    --surface: rgba(255, 255, 255, 0.045);
-    --surface-hover: rgba(255, 255, 255, 0.075);
-    --border: rgba(255, 255, 255, 0.09);
-    --border-strong: rgba(255, 255, 255, 0.16);
-    --glass: rgba(16, 20, 31, 0.78);
-    --glass-strong: rgba(16, 20, 31, 0.93);
-    --text: #f4f4f8;
-    --muted: #979bb5;
-    --teal: #00d9bc;
-    --purple: #a568ea;
-    --teal-dim: rgba(0, 217, 188, 0.15);
-    --purple-dim: rgba(165, 104, 234, 0.15);
+    /* ── Restrained color strategy ──────────────────────────────
+       One deep, warm-tinted ink neutral + ONE accent (gold/amber).
+       Variable NAMES kept as --teal/--purple for compatibility with
+       existing components, but both now resolve toward the same
+       restrained accent family instead of a dual teal/purple gradient. */
+    --bg: oklch(15.5% 0.018 264);
+    --bg-elevated: oklch(19% 0.018 264);
+    --surface: oklch(22% 0.016 264);
+    --surface-hover: oklch(26% 0.016 264);
+    --border: oklch(100% 0 0 / 9%);
+    --border-strong: oklch(100% 0 0 / 16%);
+    --glass: oklch(19% 0.018 264 / 78%);
+    --glass-strong: oklch(19% 0.018 264 / 93%);
+    --text: oklch(96.5% 0.004 264);
+    --muted: oklch(70% 0.018 264);
 
-    /* Motion — Emil Kowalski curves: strong, deliberate, never ease-in on UI */
+    --teal: oklch(78% 0.14 78);      /* primary accent — warm gold */
+    --purple: oklch(72% 0.09 70);    /* secondary — muted warm amber, near-accent */
+    --teal-dim: oklch(78% 0.14 78 / 15%);
+    --purple-dim: oklch(72% 0.09 70 / 15%);
+    --accent-ink: oklch(16% 0.02 78); /* dark text for on-accent surfaces */
+
     --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
     --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   }
@@ -35,12 +40,6 @@
 
   body {
     background-color: var(--bg);
-    /* Layered soft glows for depth instead of a flat black field */
-    background-image:
-      radial-gradient(ellipse 900px 600px at 15% -10%, rgba(0, 217, 188, 0.05), transparent 60%),
-      radial-gradient(ellipse 800px 500px at 100% 10%, rgba(165, 104, 234, 0.045), transparent 55%),
-      radial-gradient(ellipse 700px 900px at 50% 100%, rgba(0, 217, 188, 0.03), transparent 60%);
-    background-attachment: fixed;
     color: var(--text);
     font-family: 'Inter', sans-serif;
     font-size: 16px;
@@ -55,11 +54,18 @@
     font-weight: 700;
     line-height: 1.2;
     color: var(--text);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
   }
 }
 
 @layer components {
-  /* Glass card */
+  /* Ordinary content surface — solid, no blur. Glassmorphism is
+     reserved for the nav and transient overlays (cookie banner,
+     modals) where blur genuinely serves legibility over content. */
   .glass-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -72,7 +78,7 @@
     border-color: var(--border-strong);
   }
 
-  /* Nav glass */
+  /* Nav — the one legitimate blur use: fixed over scrolling content. */
   .glass-nav {
     background: var(--glass-strong);
     backdrop-filter: blur(24px);
@@ -81,43 +87,38 @@
     border-radius: 20px;
   }
 
-  /* Gradient text */
+  /* Emphasis via solid color + weight, not a text gradient. */
   .gradient-text {
-    background: linear-gradient(135deg, var(--teal), var(--purple));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--teal);
   }
 
-  /* Primary button */
   .btn-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background: #f4f4f8;
-    color: #0b0e16;
+    background: var(--teal);
+    color: var(--accent-ink);
     font-family: 'Space Grotesk', sans-serif;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 14px;
     padding: 12px 24px;
     border-radius: 999px;
     border: none;
     cursor: pointer;
-    transition: transform 160ms var(--ease-out), background-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
+    transition: transform 160ms var(--ease-out), filter 160ms var(--ease-out);
     text-decoration: none;
   }
 
   .btn-primary:hover {
     transform: scale(1.03);
-    background: #ffffff;
+    filter: brightness(1.08);
   }
 
   .btn-primary:active {
     transform: scale(0.97);
   }
 
-  /* Ghost button */
   .btn-ghost {
     display: inline-flex;
     align-items: center;
@@ -145,14 +146,13 @@
     transform: scale(0.97);
   }
 
-  /* Teal button */
   .btn-teal {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     background: var(--teal);
-    color: #0b0e16;
+    color: var(--accent-ink);
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
     font-size: 14px;
@@ -160,27 +160,26 @@
     border-radius: 999px;
     border: none;
     cursor: pointer;
-    transition: transform 160ms var(--ease-out), opacity 160ms var(--ease-out);
+    transition: transform 160ms var(--ease-out), filter 160ms var(--ease-out);
     text-decoration: none;
   }
 
   .btn-teal:hover {
     transform: scale(1.03);
-    opacity: 0.9;
+    filter: brightness(1.08);
   }
 
   .btn-teal:active {
     transform: scale(0.97);
   }
 
-  /* Section container */
   .section-container {
     max-width: 1100px;
     margin: 0 auto;
     padding: 0 16px;
   }
 
-  /* Fade up animation — entrance uses ease-out per motion guidance */
+  /* Legacy fade-up (still used by a few one-off elements). */
   .fade-up {
     opacity: 0;
     transform: translateY(20px);
@@ -188,20 +187,27 @@
   }
 
   @keyframes fadeUp {
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  /* Stagger delays */
+  /* Compliant entrance animation — CSS-only, resolves on its own via
+     animation-fill-mode, never dependent on scroll/IntersectionObserver
+     to become visible. Bounded delay, not indefinite gating. */
+  .reveal-enter {
+    animation: revealIn 550ms var(--ease-out) both;
+  }
+
+  @keyframes revealIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
   .delay-100 { animation-delay: 0.08s; }
   .delay-200 { animation-delay: 0.16s; }
   .delay-300 { animation-delay: 0.24s; }
   .delay-400 { animation-delay: 0.32s; }
   .delay-500 { animation-delay: 0.4s; }
 
-  /* Tag/pill label */
   .tag {
     display: inline-flex;
     align-items: center;
@@ -218,10 +224,9 @@
     text-transform: uppercase;
   }
 
-  /* Input field */
   .field-input {
     width: 100%;
-    background: rgba(255, 255, 255, 0.055);
+    background: var(--bg-elevated);
     border: 1px solid var(--border-strong);
     border-radius: 12px;
     padding: 12px 16px;
@@ -234,7 +239,6 @@
 
   .field-input:focus {
     border-color: var(--teal);
-    background: rgba(255, 255, 255, 0.07);
   }
 
   .field-input::placeholder {
@@ -242,11 +246,10 @@
   }
 
   .field-input option {
-    background: #151827;
+    background: var(--bg-elevated);
     color: var(--text);
   }
 
-  /* Field label */
   .field-label {
     display: block;
     font-size: 11px;
@@ -258,7 +261,6 @@
     margin-bottom: 8px;
   }
 
-  /* Check icon row */
   .feature-check {
     display: flex;
     align-items: center;
@@ -278,7 +280,6 @@
     flex-shrink: 0;
   }
 
-  /* Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
   }
@@ -294,7 +295,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .fade-up {
+  .fade-up, .reveal-enter {
     animation: none;
     opacity: 1;
     transform: none;

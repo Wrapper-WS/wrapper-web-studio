@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Check, Star, AlertCircle, Tag, X } from 'lucide-react'
 import { getPlan } from '../lib/plans'
@@ -7,29 +7,10 @@ import { formatRegionPrice, getServicePrice } from '../lib/region'
 import { supabase } from '../lib/supabase'
 import type { Upsell } from '../lib/supabase'
 import { usePageMeta } from '../lib/usePageMeta'
+import { RevealCard } from '../components/Reveal'
 
 // Plans that support promo codes (custom has no fixed price, so no promo)
 const PROMO_ELIGIBLE = ['business', 'pro']
-
-
-function RevealCard({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { el.style.opacity = '1'; el.style.transform = 'translateY(0)' } },
-      { threshold: 0.05 }
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [])
-  return (
-    <div ref={ref} style={{ opacity: 0, transform: 'translateY(20px)', transition: `opacity 0.5s ease ${delay}ms, transform 0.5s ease ${delay}ms` }}>
-      {children}
-    </div>
-  )
-}
 
 export default function PlanDetail() {
   const { planId } = useParams<{ planId: string }>()
@@ -168,7 +149,7 @@ export default function PlanDetail() {
               ) : appliedPromo ? (
                 <div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-                    <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 38, fontWeight: 700, color: 'var(--teal)' }}>{formatRegionPrice(discountedPrice, region)}</span>
+                    <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 'clamp(24px, 7vw, 38px)', fontWeight: 700, color: 'var(--teal)', lineHeight: 1.1 }}>{formatRegionPrice(discountedPrice, region)}</span>
                     <span style={{ color: 'var(--muted)', fontSize: 14 }}>/ one-time</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
@@ -180,7 +161,7 @@ export default function PlanDetail() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                  <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 38, fontWeight: 700 }}>{formatRegionPrice(planPrice, region)}</span>
+                  <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 'clamp(24px, 7vw, 38px)', fontWeight: 700, lineHeight: 1.1 }}>{formatRegionPrice(planPrice, region)}</span>
                   <span style={{ color: 'var(--muted)', fontSize: 14 }}>/ one-time</span>
                 </div>
               )}

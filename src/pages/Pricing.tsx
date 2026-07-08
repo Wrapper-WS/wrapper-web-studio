@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Check, Sparkles, ArrowRight } from 'lucide-react'
 import { plans } from '../lib/plans'
@@ -7,25 +7,7 @@ import { formatRegionPrice, getServicePrice } from '../lib/region'
 import { supabase } from '../lib/supabase'
 import type { Upsell } from '../lib/supabase'
 import { usePageMeta } from '../lib/usePageMeta'
-
-function RevealCard({ children, delay = 0, style = {} }: { children: React.ReactNode; delay?: number; style?: React.CSSProperties }) {
-  const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { el.style.opacity = '1'; el.style.transform = 'translateY(0)' } },
-      { threshold: 0.08 }
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [])
-  return (
-    <div ref={ref} style={{ opacity: 0, transform: 'translateY(24px)', transition: `opacity 0.55s ease ${delay}ms, transform 0.55s ease ${delay}ms`, ...style }}>
-      {children}
-    </div>
-  )
-}
+import { RevealCard } from '../components/Reveal'
 
 const planAccents: Record<string, { border: string; glow: string; priceColor: string; bg: string }> = {
   starter: {
@@ -134,17 +116,17 @@ export default function Pricing() {
                   </h2>
                   <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 16 }}>{plan.tagline}</p>
 
-                  <div style={{ marginBottom: 18 }}>
+                  <div style={{ marginBottom: 18, display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: 4 }}>
                     {isCustom ? (
                       <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 22, fontWeight: 700, color: accent.priceColor }}>
                         Let's discuss your price
                       </span>
                     ) : (
                       <>
-                        <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 34, fontWeight: 700, color: accent.priceColor }}>
+                        <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: 'clamp(20px, 6vw, 34px)', fontWeight: 700, color: accent.priceColor, lineHeight: 1.1 }}>
                           {fmt(plan.id)}
                         </span>
-                        <span style={{ color: 'var(--muted)', fontSize: 13, marginLeft: 4 }}>/ one-time</span>
+                        <span style={{ color: 'var(--muted)', fontSize: 13 }}>/ one-time</span>
                       </>
                     )}
                   </div>
